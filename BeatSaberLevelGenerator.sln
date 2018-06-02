@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberLevelGenerator", "BeatSaberLevelGenerator\BeatSaberLevelGenerator.csproj", "{058D602A-0FDE-48DD-BA3C-9516A8ECC8A3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberSongGenerator", "BeatSaberLevelGenerator\BeatSaberSongGenerator.csproj", "{058D602A-0FDE-48DD-BA3C-9516A8ECC8A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Commons", "commons\Commons.csproj", "{D0E6B038-C939-487D-BB5E-A6270A0D18F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberSongGeneratorTest", "BeatSaberLevelGeneratorTest\BeatSaberSongGeneratorTest.csproj", "{84FE10AF-1FFF-4D4F-8AF9-03946F026214}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{058D602A-0FDE-48DD-BA3C-9516A8ECC8A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{058D602A-0FDE-48DD-BA3C-9516A8ECC8A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{058D602A-0FDE-48DD-BA3C-9516A8ECC8A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0E6B038-C939-487D-BB5E-A6270A0D18F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0E6B038-C939-487D-BB5E-A6270A0D18F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0E6B038-C939-487D-BB5E-A6270A0D18F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0E6B038-C939-487D-BB5E-A6270A0D18F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84FE10AF-1FFF-4D4F-8AF9-03946F026214}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84FE10AF-1FFF-4D4F-8AF9-03946F026214}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84FE10AF-1FFF-4D4F-8AF9-03946F026214}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84FE10AF-1FFF-4D4F-8AF9-03946F026214}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
