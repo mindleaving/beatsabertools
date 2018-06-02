@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace BeatSaberSongGenerator.Objects
 {
@@ -28,9 +29,19 @@ namespace BeatSaberSongGenerator.Objects
         public string CoverImagePath { get; set; }
 
         [JsonProperty("environmentName")]
-        public string EnvironmentName { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public EnvironmentType EnvironmentName { get; set; }
 
         [JsonProperty("difficultyLevels")]
         public IList<DifficultyLevel> DifficultyLevels { get; set; }
+    }
+
+    public enum EnvironmentType
+    {
+        DefaultEnvironment = 0,
+        TriangleEnvironment = 1,
+        BigMirrorEnvironment = 2,
+        NiceEnvironment = 3,
+
     }
 }

@@ -8,6 +8,9 @@ namespace BeatSaberSongGenerator.IO
     public class SongStorer
     {
         public const string SongInfoFileName = "info.json";
+        public const string SongPath = "song.ogg";
+        public const string CoverImagePath = "cover.jpg";
+        public static string GenerateLevelFilePath(Difficulty difficulty) => $"{difficulty.ToString().ToLowerInvariant()}.json";
 
         public void Store(Song song, string outputDirectory)
         {
@@ -21,6 +24,8 @@ namespace BeatSaberSongGenerator.IO
             {
                 StoreDifficultyLevel(difficultyLevel.Value, difficultyLevel.Key, outputDirectory);
             }
+            File.Copy(song.AudioPath, Path.Combine(outputDirectory, SongPath));
+            File.Copy(song.CoverPath, Path.Combine(outputDirectory, CoverImagePath));
         }
 
         private void StoreDifficultyLevel(
@@ -30,7 +35,7 @@ namespace BeatSaberSongGenerator.IO
         {
             var instructionsJson = JsonConvert.SerializeObject(levelInstructions);
             File.WriteAllText(
-                Path.Combine(outputDirectory, $"{difficulty.ToString().ToLowerInvariant()}.json"),
+                Path.Combine(outputDirectory, GenerateLevelFilePath(difficulty)),
                 instructionsJson);
         }
 
@@ -46,7 +51,9 @@ namespace BeatSaberSongGenerator.IO
                 var levelInstructions = JsonConvert.DeserializeObject<LevelInstructions>(instructionJson);
                 difficultyLevels.Add(difficultyLevel.Difficulty, levelInstructions);
             }
-            return new Song(songInfo, difficultyLevels);
+            var audioPath = Path.Combine(directory, SongPath);
+            var coverPath = Path.Combine(directory, CoverImagePath);
+            return new Song(songInfo, difficultyLevels, audioPath, coverPath);
         }
     }
 }

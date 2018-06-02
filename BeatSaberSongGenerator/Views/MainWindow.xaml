@@ -4,8 +4,30 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Beat Saber Song Generator" Height="200" Width="400"
+        Name="Self">
+    <Grid DataContext="{Binding ElementName=Self, Path=ViewModel}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="16"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
         
+        <Label Grid.Row="1" Grid.Column="0" Content="Skill level"/>
+        <Slider Grid.Row="1" Grid.Column="1" Value="{Binding SkillLevel}" Minimum="0" Maximum="10" TickFrequency="1" SmallChange="1" VerticalAlignment="Center"/>
+
+        <Label Grid.Row="2" Grid.Column="0" Content="Song file path"/>
+        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding AudioFilePath}" AllowDrop="True" PreviewDragEnter="OnDragEnter" PreviewDrop="OnDrop" PreviewDragOver="OnDragOver" Margin="2"/>
+
+        <Label Grid.Row="3" Grid.Column="0" Content="Cover file path"/>
+        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding CoverFilePath}" PreviewDragEnter="OnDragEnter" PreviewDrop="OnDrop" PreviewDragOver="OnDragOver" Margin="2"/>
+
+        <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Content="Generate" Command="{Binding GenerateCommand}" Margin="10"/>
     </Grid>
 </Window>

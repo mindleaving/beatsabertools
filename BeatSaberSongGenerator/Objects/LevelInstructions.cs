@@ -10,7 +10,7 @@ namespace BeatSaberSongGenerator.Objects
         public string Version { get; set; }
 
         [JsonProperty("_beatsPerMinute")]
-        public int BeatsPerMinute { get; set; }
+        public float BeatsPerMinute { get; set; }
 
         [JsonProperty("_beatsPerBar")]
         public int BeatsPerBar { get; set; }

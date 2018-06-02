@@ -25,6 +25,7 @@ namespace BeatSabeSonglGeneratorTest
 
         private static Song CreateSong(string songName)
         {
+            var difficulty = Difficulty.Normal;
             var songInfo = new SongInfo
             {
                 SongName = songName,
@@ -33,9 +34,9 @@ namespace BeatSabeSonglGeneratorTest
                 {
                     new DifficultyLevel
                     {
-                        AudioPath = "song.ogg",
-                        Difficulty = Difficulty.Normal,
-                        InstructionPath = "normal.json",
+                        AudioPath = SongStorer.SongPath,
+                        Difficulty = difficulty,
+                        InstructionPath = SongStorer.GenerateLevelFilePath(difficulty),
                         Offset = 0,
                         OldOffset = 0
                     }
@@ -44,7 +45,7 @@ namespace BeatSabeSonglGeneratorTest
             var difficultyLevels = new Dictionary<Difficulty, LevelInstructions>
             {
                 {
-                    Difficulty.Normal, new LevelInstructions
+                    difficulty, new LevelInstructions
                     {
                         Version = "1.0.0",
                         BeatsPerBar = 4,
@@ -79,7 +80,7 @@ namespace BeatSabeSonglGeneratorTest
                     }
                 }
             };
-            var song = new Song(songInfo, difficultyLevels);
+            var song = new Song(songInfo, difficultyLevels, SongStorer.SongPath, SongStorer.CoverImagePath);
             return song;
         }
     }

@@ -39,6 +39,9 @@
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="OggVorbisEncoder, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OggVorbisEncoder.1.1.0\lib\netstandard1.1\OggVorbisEncoder.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xaml">
@@ -62,6 +65,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="IO\SongStorer.cs" />
+    <Compile Include="Generators\LevelInstructionGenerator.cs" />
+    <Compile Include="Objects\AudioMetadata.cs" />
     <Compile Include="Objects\CutDirection.cs" />
     <Compile Include="Objects\Difficulty.cs" />
     <Compile Include="Objects\DifficultyLevel.cs" />
@@ -77,6 +82,12 @@
     <Compile Include="Objects\Obstacle.cs" />
     <Compile Include="Objects\SongInfo.cs" />
     <Compile Include="Objects\VerticalPosition.cs" />
+    <Compile Include="Generators\SongGenerator.cs" />
+    <Compile Include="Generators\SongGeneratorSettings.cs" />
+    <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\NotifyPropertyChangedBase.cs" />
+    <Compile Include="ViewModels\RelayCommand.cs" />
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -109,8 +120,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ViewModels\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
