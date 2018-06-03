@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Beat Saber Song Generator" Height="200" Width="400"
+        Title="Beat Saber Song Generator" Height="250" Width="400"
         Name="Self">
     <Grid DataContext="{Binding ElementName=Self, Path=ViewModel}">
         <Grid.RowDefinitions>
@@ -12,22 +12,33 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" MinHeight="50"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         
         <Label Grid.Row="1" Grid.Column="0" Content="Skill level"/>
-        <Slider Grid.Row="1" Grid.Column="1" Value="{Binding SkillLevel}" Minimum="0" Maximum="10" TickFrequency="1" SmallChange="1" VerticalAlignment="Center"/>
+        <Slider Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Value="{Binding SkillLevel}" Minimum="0" Maximum="10" TickFrequency="1" SmallChange="1" VerticalAlignment="Center"/>
 
         <Label Grid.Row="2" Grid.Column="0" Content="Song file path"/>
         <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding AudioFilePath}" AllowDrop="True" PreviewDragEnter="OnDragEnter" PreviewDrop="OnDrop" PreviewDragOver="OnDragOver" Margin="2"/>
+        <Button Grid.Row="2" Grid.Column="2" Content="Browse..." Command="{Binding BrowseAudioCommand}" Margin="2"/>
 
         <Label Grid.Row="3" Grid.Column="0" Content="Cover file path"/>
         <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding CoverFilePath}" PreviewDragEnter="OnDragEnter" PreviewDrop="OnDrop" PreviewDragOver="OnDragOver" Margin="2"/>
+        <Button Grid.Row="3" Grid.Column="2" Content="Browse..." Command="{Binding BrowseCoverCommand}" Margin="2"/>
 
-        <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Content="Generate" Command="{Binding GenerateCommand}" Margin="10"/>
+        <Label Grid.Row="4" Grid.Column="0" Content="Song name"/>
+        <TextBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding SongName}" Margin="2"/>
+
+        <Label Grid.Row="5" Grid.Column="0" Content="Author"/>
+        <TextBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Author}" Margin="2"/>
+
+        <Button Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Content="Generate" Command="{Binding GenerateCommand}" Margin="10"/>
     </Grid>
 </Window>

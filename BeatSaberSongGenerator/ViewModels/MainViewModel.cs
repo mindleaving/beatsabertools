@@ -3,17 +3,53 @@ using System.Windows;
 using System.Windows.Input;
 using BeatSaberSongGenerator.Generators;
 using BeatSaberSongGenerator.IO;
+using Microsoft.Win32;
+using NAudio.Wave;
 
 namespace BeatSaberSongGenerator.ViewModels
 {
     public class MainViewModel : NotifyPropertyChangedBase
     {
+        private string lastDirectory;
         public MainViewModel()
         {
+            BrowseAudioCommand = new RelayCommand(BrowseAudio);
+            BrowseCoverCommand = new RelayCommand(BrowseCover);
             GenerateCommand = new RelayCommand(GenerateSong, CanGenerateSong);
         }
 
-        public float SkillLevel { get; set; } = 5;
+        private float skillLevel = 5;
+        public float SkillLevel
+        {
+            get => skillLevel;
+            set
+            {
+                skillLevel = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string songName;
+        public string SongName
+        {
+            get => songName;
+            set
+            {
+                songName = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string author;
+        public string Author
+        {
+            get => author;
+            set
+            {
+                author = value;
+                OnPropertyChanged();
+            }
+        }
 
         private string audioFilePath;
         public string AudioFilePath
@@ -21,11 +57,34 @@ namespace BeatSaberSongGenerator.ViewModels
             get => audioFilePath;
             set
             {
-                if (Path.GetExtension(value)?.ToLowerInvariant() != ".ogg")
-                    MessageBox.Show("Song must be an OGG sound file");
+                var isReadableAudio = IsSupportedByNAudio(value);// || Path.GetExtension(value)?.ToLowerInvariant() == ".ogg";
+                
+                if (!isReadableAudio)
+                {
+                    MessageBox.Show("Song cannot be read");
+                }
                 else
+                {
                     audioFilePath = value;
+                    SongName = Path.GetFileNameWithoutExtension(audioFilePath);
+                    Author = string.Empty;
+                }
                 OnPropertyChanged();
+            }
+        }
+
+        private static bool IsSupportedByNAudio(string audioFilePath)
+        {
+            try
+            {
+                using (new AudioFileReader(audioFilePath))
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
             }
         }
 
@@ -44,11 +103,44 @@ namespace BeatSaberSongGenerator.ViewModels
         }
 
 
+        public ICommand BrowseAudioCommand { get; }
+        public ICommand BrowseCoverCommand { get; }
         public ICommand GenerateCommand { get; }
+
+        private void BrowseAudio()
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                InitialDirectory = lastDirectory,
+                CheckFileExists = true,
+                Title = "Select audio file"
+            };
+            if(openFileDialog.ShowDialog() != true)
+                return;
+            AudioFilePath = openFileDialog.FileName;
+            lastDirectory = Path.GetDirectoryName(openFileDialog.FileName);
+        }
+
+        private void BrowseCover()
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                InitialDirectory = lastDirectory,
+                CheckFileExists = true,
+                Title = "Select cover image"
+            };
+            if(openFileDialog.ShowDialog() != true)
+                return;
+            CoverFilePath = openFileDialog.FileName;
+            lastDirectory = Path.GetDirectoryName(openFileDialog.FileName);
+        }
 
         private bool CanGenerateSong()
         {
-            return true;
+            return !string.IsNullOrWhiteSpace(SongName)
+                && !string.IsNullOrWhiteSpace(Author)
+                && File.Exists(AudioFilePath)
+                && File.Exists(CoverFilePath);
         }
 
         private void GenerateSong()
@@ -57,7 +149,7 @@ namespace BeatSaberSongGenerator.ViewModels
             {
                 SkillLevel = SkillLevel,
             });
-            var song = songGenerator.Generate(AudioFilePath, CoverFilePath);
+            var song = songGenerator.Generate(SongName, Author, AudioFilePath, CoverFilePath);
             var songStorer = new SongStorer();
             var outputDirectory = Path.Combine(
                 Path.GetDirectoryName(AudioFilePath),

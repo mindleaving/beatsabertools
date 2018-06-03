@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using BeatSaberSongGenerator.AudioProcessing;
 using BeatSaberSongGenerator.Objects;
 using Newtonsoft.Json;
 
@@ -11,6 +12,8 @@ namespace BeatSaberSongGenerator.IO
         public const string SongPath = "song.ogg";
         public const string CoverImagePath = "cover.jpg";
         public static string GenerateLevelFilePath(Difficulty difficulty) => $"{difficulty.ToString().ToLowerInvariant()}.json";
+
+        private readonly AudioToOggConverter audioToOggConverter = new AudioToOggConverter();
 
         public void Store(Song song, string outputDirectory)
         {
@@ -24,8 +27,15 @@ namespace BeatSaberSongGenerator.IO
             {
                 StoreDifficultyLevel(difficultyLevel.Value, difficultyLevel.Key, outputDirectory);
             }
-            File.Copy(song.AudioPath, Path.Combine(outputDirectory, SongPath));
-            File.Copy(song.CoverPath, Path.Combine(outputDirectory, CoverImagePath));
+
+            if (!File.Exists(Path.Combine(outputDirectory, SongPath)))
+            {
+                if(Path.GetExtension(song.AudioPath).ToLowerInvariant() == ".ogg")
+                    File.Copy(song.AudioPath, Path.Combine(outputDirectory, SongPath), overwrite: true);
+                else
+                    audioToOggConverter.Convert(song.AudioPath, Path.Combine(outputDirectory, SongPath));
+            }
+            File.Copy(song.CoverPath, Path.Combine(outputDirectory, CoverImagePath), overwrite: true);
         }
 
         private void StoreDifficultyLevel(

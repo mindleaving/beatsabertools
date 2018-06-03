@@ -8,6 +8,10 @@ namespace BeatSaberSongGenerator.ViewModels
         private readonly Action action;
         private readonly Func<bool> canExecute;
 
+
+        public RelayCommand(Action action)
+            : this(action, () => true)
+        {}
         public RelayCommand(Action action, Func<bool> canExecute)
         {
             this.action = action;

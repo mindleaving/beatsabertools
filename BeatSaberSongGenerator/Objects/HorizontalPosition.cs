@@ -4,8 +4,7 @@
     {
         Left = 0,
         CenterLeft = 1,
-        Center = 2,
-        CenterRight = 3,
-        Right = 4
+        CenterRight = 2,
+        Right = 3
     }
 }

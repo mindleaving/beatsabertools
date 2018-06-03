@@ -47,7 +47,7 @@ namespace BeatSabeSonglGeneratorTest
                 {
                     difficulty, new LevelInstructions
                     {
-                        Version = "1.0.0",
+                        Version = "1.5.0",
                         BeatsPerBar = 4,
                         BeatsPerMinute = 120,
                         NoteJumpSpeed = 10,
@@ -61,7 +61,7 @@ namespace BeatSabeSonglGeneratorTest
                             {
                                 Time = 2.2f,
                                 VerticalPosition = VerticalPosition.Middle,
-                                HorizontalPosition = HorizontalPosition.Center,
+                                HorizontalPosition = HorizontalPosition.CenterRight,
                                 Hand = Hand.Left,
                                 CutDirection = CutDirection.Any
                             }
