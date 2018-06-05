@@ -67,7 +67,7 @@ namespace BeatSaberSongGenerator.Generators
             //        throw new NotSupportedException("Audio file is in a format that is not supported");
             //}
             TimeSpan length;
-            var audioData = AudioSampleReader.ReadMonoSamples(audioFilePath);
+            var audioData = AudioSampleReader.ReadMonoSamples(audioFilePath, out _);
             using (var audioReader = new AudioFileReader(audioFilePath))
             {
                 length = audioReader.TotalTime;
