@@ -150,6 +150,10 @@
       <Project>{D0E6B038-C939-487D-BB5E-A6270A0D18F5}</Project>
       <Name>Commons</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NWaves\NWaves\NWaves.csproj">
+      <Project>{3fbf1b3a-3bed-4f2f-8008-871acf83e352}</Project>
+      <Name>NWaves</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\MathNet.Numerics.MKL.Win.2.2.0\build\MathNet.Numerics.MKL.Win.targets" Condition="Exists('..\packages\MathNet.Numerics.MKL.Win.2.2.0\build\MathNet.Numerics.MKL.Win.targets')" />
