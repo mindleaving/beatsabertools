@@ -5,6 +5,8 @@ using System.Linq;
 using Commons;
 using Commons.Extensions;
 using Commons.IO;
+using NWaves.Transforms;
+using NWaves.Windows;
 using SharpLearning.Containers.Matrices;
 using SharpLearning.InputOutput.Csv;
 using SharpLearning.InputOutput.Serialization;
@@ -33,8 +35,8 @@ namespace BeatSaberSongGenerator.AudioProcessing
 
             F64Matrix trainingDataMatrix;
             IList<double> labels;
-            if (!File.Exists(trainingDataPath) || !File.Exists(labelsPath))
-            {
+            //if (!File.Exists(trainingDataPath) || !File.Exists(labelsPath))
+            //{
                 var beatPositionColumn = CsvReader.ReadColumns(beatPositionFilePath)
                     .ToDictionary(kvp => kvp.Key,
                         kvp => kvp.Value.Where(str => !string.IsNullOrEmpty(str)).Select(int.Parse).ToList());
@@ -46,6 +48,8 @@ namespace BeatSaberSongGenerator.AudioProcessing
                     var audioData = AudioSampleReader.ReadMonoSamples(songFile, out var sampleRate);
                     if (sampleRate != 44100)
                         throw new Exception();
+                    var stft = new Stft(windowSize:4096, hopSize: 1024, window: WindowTypes.Hamming, fftSize: 128);
+                    var spectrogram = stft.Spectrogram(audioData.ToArray());
                     var downsampledAudioData = AudioDownsampler.Downsample(audioData, Downsampling);
                     var beatPositionHeader = songFileToBeatPositionHeaderMap[songFile];
                     var beatPositions = beatPositionColumn[beatPositionHeader];
@@ -68,6 +72,7 @@ namespace BeatSaberSongGenerator.AudioProcessing
                         labels.Add(0);
                     }
                 }
+                return;
 
                 trainingDataMatrix = new F64Matrix(
                     trainingData.SelectMany(row => row).Select(x => (double) x).ToArray(),
@@ -79,14 +84,14 @@ namespace BeatSaberSongGenerator.AudioProcessing
                 File.WriteAllLines(
                     labelsPath,
                     labels.Select(x => x.ToString("F0")));
-            }
-            else
-            {
-                labels = File.ReadAllLines(labelsPath).Select(double.Parse).ToList();
-                trainingDataMatrix = new CsvParser(() => new StreamReader(trainingDataPath))
-                    .EnumerateRows()
-                    .ToF64Matrix();
-            }
+            //}
+            //else
+            //{
+            //    labels = File.ReadAllLines(labelsPath).Select(double.Parse).ToList();
+            //    trainingDataMatrix = new CsvParser(() => new StreamReader(trainingDataPath))
+            //        .EnumerateRows()
+            //        .ToF64Matrix();
+            //}
 
 
             var neuralNetwork = new NeuralNet();
