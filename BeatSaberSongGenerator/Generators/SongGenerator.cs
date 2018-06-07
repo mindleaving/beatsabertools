@@ -1,20 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using BeatSaberSongGenerator.AudioProcessing;
 using BeatSaberSongGenerator.IO;
 using BeatSaberSongGenerator.Objects;
-using NAudio.Wave;
 
 namespace BeatSaberSongGenerator.Generators
 {
     public class SongGenerator
     {
+        private readonly BeatDetector beatDetector;
         private readonly LevelInstructionGenerator levelInstructionGenerator;
 
         public SongGenerator(SongGeneratorSettings settings)
         {
+            beatDetector = new BeatDetector();
             levelInstructionGenerator = new LevelInstructionGenerator(settings);
         }
 
@@ -24,13 +23,13 @@ namespace BeatSaberSongGenerator.Generators
             audioMetadata.SongName = songName;
             audioMetadata.Author = author;
             var environmentType = EnvironmentType.DefaultEnvironment;
-            var difficulties = new []{Difficulty.Normal};
+            var difficulties = new []{ Difficulty.Easy, Difficulty.Normal, Difficulty.Hard, Difficulty.Expert};
             var songInfo = new SongInfo
             {
                 SongName = songName,
                 SongSubName = "",
                 AuthorName = author,
-                BeatsPerMinute = audioMetadata.BeatsPerMinute,
+                BeatsPerMinute = (float) audioMetadata.BeatsPerMinute,
                 PreviewStartTime = 0,
                 PreviewDuration = 0,
                 CoverImagePath = SongStorer.CoverImagePath,
@@ -57,34 +56,17 @@ namespace BeatSaberSongGenerator.Generators
 
         private AudioMetadata GetAudioMetadata(string audioFilePath)
         {
-            //if(!Path.HasExtension(audioFilePath))
-            //    throw new ArgumentException("Audio file must have an extension");
-            //switch (Path.GetExtension(audioFilePath).ToLowerInvariant())
-            //{
-            //    case ".wav":
-            //        break;
-            //    default:
-            //        throw new NotSupportedException("Audio file is in a format that is not supported");
-            //}
-            TimeSpan length;
-            var audioData = AudioSampleReader.ReadMonoSamples(audioFilePath, out _);
-            using (var audioReader = new AudioFileReader(audioFilePath))
-            {
-                length = audioReader.TotalTime;
-            }
-            var bpm = DetermineBeatsPerMinute(audioData);
+            var audioData = AudioSampleReader.ReadMonoSamples(audioFilePath, out var sampleRate);
+            var beatDetectorResult = beatDetector.DetectBeats(audioData, sampleRate);
             return new AudioMetadata
             {
-                Length = length,
-                BeatsPerMinute = bpm,
-                BeatsPerBar = 4
+                SampleRate = sampleRate,
+                Length = TimeSpan.FromSeconds(audioData.Count / (double)sampleRate),
+                BeatsPerMinute = beatDetectorResult.BeatsPerMinute,
+                BeatsPerBar = 4,
+                Beats = beatDetectorResult.Beats,
+                SongIntensities = beatDetectorResult.SongIntensities
             };
-        }
-
-        private float DetermineBeatsPerMinute(IList<float> audioData)
-        {
-            File.WriteAllLines(@"C:\Temp\audiosamples.csv", audioData.Select(x => x.ToString("F3")));
-            return 120;
         }
     }
 }

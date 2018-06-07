@@ -18,7 +18,7 @@ namespace BeatSaberSongGenerator.ViewModels
             GenerateCommand = new RelayCommand(GenerateSong, CanGenerateSong);
         }
 
-        private float skillLevel = 5;
+        private float skillLevel = 0.5f;
         public float SkillLevel
         {
             get => skillLevel;

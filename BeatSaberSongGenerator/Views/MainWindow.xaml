@@ -23,7 +23,7 @@
         </Grid.ColumnDefinitions>
         
         <Label Grid.Row="1" Grid.Column="0" Content="Skill level"/>
-        <Slider Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Value="{Binding SkillLevel}" Minimum="0" Maximum="10" TickFrequency="1" SmallChange="1" VerticalAlignment="Center"/>
+        <Slider Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Value="{Binding SkillLevel}" Minimum="0" Maximum="1" TickFrequency="0.1" SmallChange="0.1" VerticalAlignment="Center"/>
 
         <Label Grid.Row="2" Grid.Column="0" Content="Song file path"/>
         <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding AudioFilePath}" AllowDrop="True" PreviewDragEnter="OnDragEnter" PreviewDrop="OnDrop" PreviewDragOver="OnDragOver" Margin="2"/>

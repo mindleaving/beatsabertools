@@ -38,10 +38,11 @@ namespace BeatSabeSonglGeneratorTest
             var songFilePath = @"C:\Users\Jan\Music\Dimitri Vegas - Ocarina.mp3";
             var sut = new BeatDetector();
             var signal = AudioSampleReader.ReadMonoSamples(songFilePath, out var sampleRate);
-            var beats = sut.DetectBeats(signal, sampleRate);
-            foreach (var beat in beats)
+            var beatDetectorResult = sut.DetectBeats(signal, sampleRate);
+            Console.WriteLine($@"BPM: {beatDetectorResult.BeatsPerMinute:F0}");
+            foreach (var beat in beatDetectorResult.Beats)
             {
-                Console.WriteLine(beat);
+                Console.WriteLine($@"{beat.SampleIndex};{beat.Strength}");
             }
         }
     }

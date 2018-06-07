@@ -106,6 +106,7 @@
     <Compile Include="Objects\ObstableType.cs" />
     <Compile Include="Objects\Obstacle.cs" />
     <Compile Include="Objects\SongInfo.cs" />
+    <Compile Include="Objects\SongIntensity.cs" />
     <Compile Include="Objects\VerticalPosition.cs" />
     <Compile Include="Generators\SongGenerator.cs" />
     <Compile Include="Generators\SongGeneratorSettings.cs" />
