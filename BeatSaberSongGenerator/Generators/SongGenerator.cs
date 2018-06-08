@@ -29,7 +29,7 @@ namespace BeatSaberSongGenerator.Generators
                 SongName = songName,
                 SongSubName = "",
                 AuthorName = author,
-                BeatsPerMinute = (float) audioMetadata.BeatsPerMinute,
+                BeatsPerMinute = (float) audioMetadata.BeatDetectorResult.BeatsPerMinute,
                 PreviewStartTime = 0,
                 PreviewDuration = 0,
                 CoverImagePath = SongStorer.CoverImagePath,
@@ -62,10 +62,7 @@ namespace BeatSaberSongGenerator.Generators
             {
                 SampleRate = sampleRate,
                 Length = TimeSpan.FromSeconds(audioData.Count / (double)sampleRate),
-                BeatsPerMinute = beatDetectorResult.BeatsPerMinute,
-                BeatsPerBar = 4,
-                Beats = beatDetectorResult.Beats,
-                SongIntensities = beatDetectorResult.SongIntensities
+                BeatDetectorResult = beatDetectorResult
             };
         }
     }

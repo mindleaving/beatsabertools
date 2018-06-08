@@ -29,8 +29,8 @@ namespace BeatSaberSongGenerator.Generators
             return new LevelInstructions
             {
                 Version = "1.5.0",
-                BeatsPerMinute = (float) audioMetadata.BeatsPerMinute,
-                BeatsPerBar = audioMetadata.BeatsPerBar,
+                BeatsPerMinute = (float) audioMetadata.BeatDetectorResult.BeatsPerMinute,
+                BeatsPerBar = audioMetadata.BeatDetectorResult.BeatsPerBar,
                 NoteJumpSpeed = 10,
                 Shuffle = 0,
                 ShufflePeriod = 0.5f,
@@ -43,37 +43,55 @@ namespace BeatSaberSongGenerator.Generators
         private IList<Note> GenerateNotesFromSongAnalysis(Difficulty difficulty, AudioMetadata audioMetadata)
         {
             var sampleRate = audioMetadata.SampleRate;
-            var bpm = audioMetadata.BeatsPerMinute;
-            var songIntensities = audioMetadata.SongIntensities;
+            var bpm = audioMetadata.BeatDetectorResult.BeatsPerMinute;
+            var songIntensities = audioMetadata.BeatDetectorResult.SongIntensities;
             var continuousSongIntensity = new ContinuousLine2D(songIntensities.Select(x => new Point2D(x.SampleIndex, x.Intensity)));
-            var beats = audioMetadata.Beats;
+            var beats = audioMetadata.BeatDetectorResult.RegularBeats;
             var notes = new List<Note>();
             var minimumTimeBetweenNotes = DetermineTimeBetweenNotes(difficulty);
             Beat lastBeat = null;
             foreach (var beat in beats)
             {
+                var beatTime = SampleIndexToTime(beat.SampleIndex, sampleRate);
+                if(beatTime < TimeSpan.FromSeconds(3))
+                    continue; // Stop a few seconds before song ends
+                if(beatTime > audioMetadata.Length - TimeSpan.FromSeconds(3))
+                    break; // Stop a few seconds before song ends
                 if (lastBeat != null)
                 {
-                    var timeSinceLastBeat = SampleIndexToTime(beat.SampleIndex, sampleRate) 
+                    var timeSinceLastBeat = beatTime 
                                             - SampleIndexToTime(lastBeat.SampleIndex, sampleRate);
                     var currentIntensity = continuousSongIntensity.ValueAtX(beat.SampleIndex);
                     if (currentIntensity.IsNaN())
                         currentIntensity = 0;
-                    var intensityAdjustment = TimeSpan.FromSeconds(1 - currentIntensity);
+                    var intensityAdjustment = TimeSpan.FromSeconds(0.5*(1 - currentIntensity));
                     if(timeSinceLastBeat < minimumTimeBetweenNotes + intensityAdjustment)
                         continue;
                 }
-                var cutDirection = (CutDirection) StaticRandom.Rng.Next(0, 9);
+                var cutDirection = CutDirection.Down;//(CutDirection) StaticRandom.Rng.Next(0, 9);
                 var hand = StaticRandom.Rng.Next(2) == 1 ? Hand.Right : Hand.Left;
+                var beatIndex = SampleIndexToBeatIndex(beat.SampleIndex, sampleRate, bpm);
                 var note = new Note
                 {
-                    Time = SampleIndexToBeatIndex(beat.SampleIndex, sampleRate, bpm),
+                    Time = beatIndex,
                     CutDirection = cutDirection,
                     Hand = hand,
-                    HorizontalPosition = (HorizontalPosition)StaticRandom.Rng.Next(4),
+                    HorizontalPosition = hand == Hand.Right ? HorizontalPosition.Right : HorizontalPosition.Left,
                     VerticalPosition = VerticalPosition.Bottom,
                 };
                 notes.Add(note);
+                if (difficulty == Difficulty.Expert && continuousSongIntensity.ValueAtX(beat.SampleIndex) > 0.5)
+                {
+                    var secondNote = new Note
+                    {
+                        Time = beatIndex + 0.5f,
+                        CutDirection = cutDirection.Invert(),
+                        Hand = note.Hand,
+                        HorizontalPosition = note.HorizontalPosition,
+                        VerticalPosition = note.VerticalPosition
+                    };
+                    notes.Add(secondNote);
+                }
                 lastBeat = beat;
             }
             return notes;
@@ -96,16 +114,16 @@ namespace BeatSaberSongGenerator.Generators
             switch (difficulty)
             {
                 case Difficulty.Easy:
-                    multiplier = 2;
+                    multiplier = 1.5;
                     break;
                 case Difficulty.Normal:
-                    multiplier = 1;
+                    multiplier = 1.0;
                     break;
                 case Difficulty.Hard:
-                    multiplier = 0.8;
+                    multiplier = 0.5;
                     break;
                 case Difficulty.Expert:
-                    multiplier = 0.5;
+                    multiplier = 0.3;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(difficulty), difficulty, null);
@@ -122,7 +140,7 @@ namespace BeatSaberSongGenerator.Generators
                 : difficulty == Difficulty.Hard ? 1.0
                 : difficulty == Difficulty.Expert ? 0.5
                 : throw new ArgumentOutOfRangeException(nameof(difficulty));
-            var beatsPerSecond = audioMetadata.BeatsPerMinute / 60;
+            var beatsPerSecond = audioMetadata.BeatDetectorResult.BeatsPerMinute / 60;
             var totalBeats = audioMetadata.Length.TotalSeconds * beatsPerSecond;
             foreach (var beatIdx in SequenceGeneration.FixedStep(5, totalBeats, stepSize))
             {
@@ -145,7 +163,7 @@ namespace BeatSaberSongGenerator.Generators
         private IList<Obstacle> GenerateRandomObstacle(Difficulty difficulty, AudioMetadata audioMetadata)
         {
             var obstacles = new List<Obstacle>();
-            var beatsPerSecond = audioMetadata.BeatsPerMinute / 60;
+            var beatsPerSecond = audioMetadata.BeatDetectorResult.BeatsPerMinute / 60;
             var totalBeats = audioMetadata.Length.TotalSeconds * beatsPerSecond;
             foreach (var beatIdx in SequenceGeneration.FixedStep(10, totalBeats, 10))
             {

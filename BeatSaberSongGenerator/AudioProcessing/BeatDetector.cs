@@ -13,19 +13,29 @@ namespace BeatSaberSongGenerator.AudioProcessing
 {
     public class BeatDetectorResult
     {
-        public BeatDetectorResult(double beatsPerMinute, List<Beat> beats, List<SongIntensity> songIntensities = null)
+        public BeatDetectorResult(
+            double beatsPerMinute, 
+            int beatsPerBar,
+            List<Beat> detectedBeats, 
+            List<Beat> regularBeats, 
+            List<SongIntensity> songIntensities = null)
         {
             BeatsPerMinute = beatsPerMinute;
-            Beats = beats;
+            BeatsPerBar = beatsPerBar;
+            DetectedBeats = detectedBeats;
+            RegularBeats = regularBeats;
             SongIntensities = songIntensities;
         }
 
         public double BeatsPerMinute { get; }
-        public List<Beat> Beats { get; }
+        public int BeatsPerBar { get; set; }
+        public List<Beat> DetectedBeats { get; }
+        public List<Beat> RegularBeats { get; }
         public List<SongIntensity> SongIntensities { get; }
     }
     public class BeatDetector
     {
+        private const double BeatInaccuracyTolerance = 0.05;
         private readonly WindowClusterer windowClusterer;
 
         public BeatDetector()
@@ -57,8 +67,39 @@ namespace BeatSaberSongGenerator.AudioProcessing
             var filteredBeats = FilterBeats(candidateBeats, lowerLimit);
             // TODO: Filter candidate beats to get a more regular beat
             var beatsPerMinute = DetermineBeatsPerMinute(filteredBeats, sampleRate, upperLimit);
+            var regularBeats = GenerateRegularBeats(filteredBeats, beatsPerMinute, sampleRate, signal.Count);
 
-            return new BeatDetectorResult(beatsPerMinute, filteredBeats, songIntensity);
+            var beatsPerBar = 4;
+            return new BeatDetectorResult(beatsPerMinute, beatsPerBar, filteredBeats, regularBeats, songIntensity);
+        }
+
+        private List<Beat> GenerateRegularBeats(List<Beat> detectedBeats, double beatsPerMinute, int sampleRate, int totalSampleCount)
+        {
+            var expectedBeatSeparationInSeconds = 60 / beatsPerMinute;
+            var expectedBeatSeparationInSamples = (int)Math.Round(expectedBeatSeparationInSeconds * sampleRate);
+            var expectedBeats = detectedBeats
+                .Zip(detectedBeats.Skip(1), (b1, b2) => new
+                {
+                    Separation = (b2.SampleIndex - b1.SampleIndex) / (double) sampleRate,
+                    SampleIndex1 = b1.SampleIndex,
+                    SampleIndex2 = b2.SampleIndex
+                })
+                .Where(x => (x.Separation - expectedBeatSeparationInSeconds).Abs() <  BeatInaccuracyTolerance)
+                .SelectMany(x => new[] { x.SampleIndex1, x.SampleIndex2})
+                .Distinct()
+                .ToList();
+            var offset = expectedBeats
+                .Select(sampleIdx => (double)sampleIdx.Modulus(expectedBeatSeparationInSamples))
+                .Median();
+            var regularBeatSampleIndices = SequenceGeneration.FixedStep(offset, totalSampleCount, expectedBeatSeparationInSamples);
+            var regularBeats = regularBeatSampleIndices
+                .Select(sampleIdx => new Beat
+                {
+                    SampleIndex = (int) Math.Round(sampleIdx),
+                    Strength = 0
+                })
+                .ToList();
+            return regularBeats;
         }
 
         private static List<Beat> FilterBeats(List<Beat> candidateBeats, double lowerLimit)
@@ -89,7 +130,8 @@ namespace BeatSaberSongGenerator.AudioProcessing
             var averagedSignal = fftMagnitudeIncreaseSeries
                 .MedianFilter(movingAverageWindowSize)
                 .ToList();
-            songIntensities = averagedSignal.Select(p => new SongIntensity((int) p.X, p.Y / maxValue)).ToList();
+            var averagedSignalMax = averagedSignal.Max(p => p.Y);
+            songIntensities = averagedSignal.Select(p => new SongIntensity((int) p.X, p.Y / averagedSignalMax)).ToList();
             var candidateBeats = new List<Beat>();
             for (var pointIdx = 0; pointIdx < fftMagnitudeIncreaseSeries.Count; pointIdx++)
             {
@@ -140,7 +182,7 @@ namespace BeatSaberSongGenerator.AudioProcessing
                 .Zip(filteredBeats.Skip(1), (idx1, idx2) => idx2.SampleIndex - idx1.SampleIndex)
                 .Where(beatLength => beatLength < upperLimit)
                 .ToList();
-            var clusterWindowSize = (int) Math.Ceiling(0.05 * sampleRate);
+            var clusterWindowSize = (int) Math.Ceiling(BeatInaccuracyTolerance * sampleRate);
             var beatLengthClusters = windowClusterer.Cluster(beatLengths, x => x, clusterWindowSize, 1);
             var largestBeatLengthCluster = beatLengthClusters.MaximumItem(c => c.Items.Count);
             var averageBeatLength = largestBeatLengthCluster.Items.Average();

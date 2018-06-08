@@ -40,7 +40,7 @@ namespace BeatSabeSonglGeneratorTest
             var signal = AudioSampleReader.ReadMonoSamples(songFilePath, out var sampleRate);
             var beatDetectorResult = sut.DetectBeats(signal, sampleRate);
             Console.WriteLine($@"BPM: {beatDetectorResult.BeatsPerMinute:F0}");
-            foreach (var beat in beatDetectorResult.Beats)
+            foreach (var beat in beatDetectorResult.DetectedBeats)
             {
                 Console.WriteLine($@"{beat.SampleIndex};{beat.Strength}");
             }
