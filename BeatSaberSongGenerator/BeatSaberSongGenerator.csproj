@@ -89,6 +89,9 @@
     <Compile Include="AudioProcessing\AudioToOggConverter.cs" />
     <Compile Include="AudioProcessing\BeatDetector.cs" />
     <Compile Include="AudioProcessing\BeatDetectorTraining.cs" />
+    <Compile Include="AudioProcessing\BeatMerger.cs" />
+    <Compile Include="Generators\HandMovementGenerator.cs" />
+    <Compile Include="Generators\TimeConversion.cs" />
     <Compile Include="IO\SongStorer.cs" />
     <Compile Include="Generators\LevelInstructionGenerator.cs" />
     <Compile Include="Objects\AudioMetadata.cs" />

@@ -76,7 +76,7 @@ namespace BeatSaberSongGenerator.AudioProcessing
         private List<Beat> GenerateRegularBeats(List<Beat> detectedBeats, double beatsPerMinute, int sampleRate, int totalSampleCount)
         {
             var expectedBeatSeparationInSeconds = 60 / beatsPerMinute;
-            var expectedBeatSeparationInSamples = (int)Math.Round(expectedBeatSeparationInSeconds * sampleRate);
+            var expectedBeatSeparationInSamples = expectedBeatSeparationInSeconds * sampleRate;
             var expectedBeats = detectedBeats
                 .Zip(detectedBeats.Skip(1), (b1, b2) => new
                 {
@@ -87,15 +87,46 @@ namespace BeatSaberSongGenerator.AudioProcessing
                 .Where(x => (x.Separation - expectedBeatSeparationInSeconds).Abs() <  BeatInaccuracyTolerance)
                 .SelectMany(x => new[] { x.SampleIndex1, x.SampleIndex2})
                 .Distinct()
+                .OrderBy(x => x)
                 .ToList();
-            var offset = expectedBeats
-                .Select(sampleIdx => (double)sampleIdx.Modulus(expectedBeatSeparationInSamples))
-                .Median();
-            var regularBeatSampleIndices = SequenceGeneration.FixedStep(offset, totalSampleCount, expectedBeatSeparationInSamples);
+
+            var regularBeatSampleIndices = new List<int>();
+            // Extrapolate beats before first detected beat
+            var extrapolatedBeat = (int)(expectedBeats[0] - expectedBeatSeparationInSamples);
+            while (extrapolatedBeat > 0)
+            {
+                regularBeatSampleIndices.Add(extrapolatedBeat);
+                extrapolatedBeat = (int) (extrapolatedBeat - expectedBeatSeparationInSamples);
+            }
+            // Extrapolate beats between detected beats
+            for (int beatIdx = 0; beatIdx < expectedBeats.Count-1; beatIdx++)
+            {
+                var currentBeat = expectedBeats[beatIdx];
+                var nextBeat = expectedBeats[beatIdx + 1];
+                regularBeatSampleIndices.Add(currentBeat);
+
+                var samplesBetweenBeats = nextBeat - currentBeat;
+                var beatCount = (int)Math.Round(samplesBetweenBeats / expectedBeatSeparationInSamples);
+                var beatSeparation = (nextBeat - currentBeat) / (double)beatCount;
+                for (int extraBeatIdx = 1; extraBeatIdx < beatCount; extraBeatIdx++)
+                {
+                    var extraBeat = (int) (currentBeat + extraBeatIdx * beatSeparation);
+                    regularBeatSampleIndices.Add(extraBeat);
+                }
+            }
+            // Extrapolate beats after last detected beat
+            extrapolatedBeat = expectedBeats.Last();
+            while (extrapolatedBeat < totalSampleCount)
+            {
+                regularBeatSampleIndices.Add(extrapolatedBeat);
+                extrapolatedBeat = (int) (extrapolatedBeat + expectedBeatSeparationInSamples);
+            }
+            regularBeatSampleIndices.Sort((a,b) => a.CompareTo(b));
+
             var regularBeats = regularBeatSampleIndices
                 .Select(sampleIdx => new Beat
                 {
-                    SampleIndex = (int) Math.Round(sampleIdx),
+                    SampleIndex = sampleIdx,
                     Strength = 0
                 })
                 .ToList();
