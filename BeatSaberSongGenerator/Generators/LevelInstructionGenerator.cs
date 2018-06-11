@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using BeatSaberSongGenerator.AudioProcessing;
 using BeatSaberSongGenerator.Objects;
-using Commons;
 using Commons.Extensions;
 using Commons.Mathematics;
 
@@ -13,17 +12,20 @@ namespace BeatSaberSongGenerator.Generators
     {
         private readonly SongGeneratorSettings settings;
         private readonly HandMovementGenerator handMovementGenerator;
+        private readonly BaseRhythmGenerator baseRhythmGenerator;
 
         public LevelInstructionGenerator(SongGeneratorSettings settings)
         {
             this.settings = settings;
             handMovementGenerator = new HandMovementGenerator();
+            baseRhythmGenerator = new BaseRhythmGenerator();
         }
 
         public LevelInstructions Generate(Difficulty difficulty, AudioMetadata audioMetadata)
         {
             var events = new List<Event>();
-            var notes = GenerateNotesFromSongAnalysis(difficulty, audioMetadata);
+            //var notes = GenerateNotesFromSongAnalysis(difficulty, audioMetadata);
+            var notes = GenerateModifiedBaseRhythm(difficulty, audioMetadata);
             var obstacles = new List<Obstacle>();
             return new LevelInstructions
             {
@@ -37,6 +39,21 @@ namespace BeatSaberSongGenerator.Generators
                 Notes = notes,
                 Obstacles = obstacles
             };
+        }
+
+        private IList<Note> GenerateModifiedBaseRhythm(Difficulty difficulty, AudioMetadata audioMetadata)
+        {
+            var beats = BeatMerger.Merge(
+                audioMetadata.BeatDetectorResult.DetectedBeats, 
+                audioMetadata.BeatDetectorResult.RegularBeats, 
+                audioMetadata.SampleRate);
+            var startBeatIdx = beats.FindIndex(beat => beat.Strength > 0);
+            var endBeatIdx = beats.FindLastIndex(beat => beat.Strength > 0);
+            var totalValidBeatCount = endBeatIdx - startBeatIdx + 1;
+            var barCount = totalValidBeatCount / audioMetadata.BeatDetectorResult.BeatsPerBar;
+            var notes = baseRhythmGenerator.Generate(audioMetadata.BeatDetectorResult.BeatsPerBar, barCount, startBeatIdx);
+            var difficultyFilteredNotes = FilterNotesByDifficulty(notes, audioMetadata, difficulty);
+            return difficultyFilteredNotes;
         }
 
         private IList<Note> GenerateNotesFromSongAnalysis(Difficulty difficulty, AudioMetadata audioMetadata)
@@ -59,6 +76,15 @@ namespace BeatSaberSongGenerator.Generators
                 bpm);
             var baseNotes = handMovements.LeftHand.Concat(handMovements.RightHand).OrderBy(x => x.Time);
 
+            var notes = FilterNotesByDifficulty(baseNotes, audioMetadata, difficulty);
+            return notes;
+        }
+
+        private List<Note> FilterNotesByDifficulty(IEnumerable<Note> baseNotes, AudioMetadata audioMetadata, Difficulty difficulty)
+        {
+            var songIntensities = audioMetadata.BeatDetectorResult.SongIntensities;
+            var bpm = audioMetadata.BeatDetectorResult.BeatsPerMinute;
+            var sampleRate = audioMetadata.SampleRate;
             var continuousSongIntensity = new ContinuousLine2D(songIntensities.Select(x => new Point2D(x.SampleIndex, x.Intensity)));
             var minimumTimeBetweenNotes = DetermineTimeBetweenNotes(difficulty);
             var notes = new List<Note>();
@@ -85,6 +111,7 @@ namespace BeatSaberSongGenerator.Generators
                         continue;
                     }
                 }
+
                 if (currentIntensity < 0.5)
                     continue;
                 notes.Add(baseNote);

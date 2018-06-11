@@ -5,6 +5,22 @@ namespace BeatSaberSongGenerator.Objects
     [JsonObject(MemberSerialization.OptIn)]
     public class Note
     {
+        public Note() {}
+
+        public Note(
+            float time, 
+            Hand hand, 
+            CutDirection cutDirection, 
+            HorizontalPosition horizontalPosition,
+            VerticalPosition verticalPosition)
+        {
+            Time = time;
+            Hand = hand;
+            CutDirection = cutDirection;
+            HorizontalPosition = horizontalPosition;
+            VerticalPosition = verticalPosition;
+        }
+
         [JsonProperty("_time")]
         public float Time { get; set; }
 

@@ -19,5 +19,10 @@ namespace BeatSaberSongGenerator.Generators
         {
             return TimeSpan.FromSeconds(beatIndex * 60 / bpm);
         }
+
+        public static int BeatIndexToSampleIndex(float beatIndex, double bpm, int sampleRate)
+        {
+            return (int) (beatIndex * 60 * sampleRate / bpm);
+        }
     }
 }

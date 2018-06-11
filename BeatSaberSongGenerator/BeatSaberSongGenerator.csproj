@@ -90,7 +90,9 @@
     <Compile Include="AudioProcessing\BeatDetector.cs" />
     <Compile Include="AudioProcessing\BeatDetectorTraining.cs" />
     <Compile Include="AudioProcessing\BeatMerger.cs" />
+    <Compile Include="Generators\BaseRhythmGenerator.cs" />
     <Compile Include="Generators\HandMovementGenerator.cs" />
+    <Compile Include="Generators\NoteCombinationLibrary.cs" />
     <Compile Include="Generators\TimeConversion.cs" />
     <Compile Include="IO\SongStorer.cs" />
     <Compile Include="Generators\LevelInstructionGenerator.cs" />
