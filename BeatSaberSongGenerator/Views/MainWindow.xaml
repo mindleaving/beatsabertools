@@ -39,6 +39,11 @@
         <Label Grid.Row="5" Grid.Column="0" Content="Author"/>
         <TextBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Author}" Margin="2"/>
 
-        <Button Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Content="Generate" Command="{Binding GenerateCommand}" Margin="10"/>
+        <Button Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Command="{Binding GenerateCommand}" Margin="10">
+            <StackPanel Orientation="Horizontal">
+                <Label Content="{Binding GenerateButtonText}"/>
+                <ProgressBar IsIndeterminate="True" Width="80" Height="8" Margin="5 0" Visibility="{Binding ProgressBarVisibility}"/>
+            </StackPanel>
+        </Button>
     </Grid>
 </Window>

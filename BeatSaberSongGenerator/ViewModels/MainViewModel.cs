@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using BeatSaberSongGenerator.Generators;
@@ -102,6 +103,29 @@ namespace BeatSaberSongGenerator.ViewModels
             }
         }
 
+        private const string DefaultGenerateButtonText = "Generate";
+        private string generateButtonText = DefaultGenerateButtonText;
+        public string GenerateButtonText
+        {
+            get => generateButtonText;
+            private set
+            {
+                generateButtonText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private Visibility progressBarVisibility = Visibility.Collapsed;
+        public Visibility ProgressBarVisibility
+        {
+            get => progressBarVisibility;
+            private set
+            {
+                progressBarVisibility = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         public ICommand BrowseAudioCommand { get; }
         public ICommand BrowseCoverCommand { get; }
@@ -145,6 +169,11 @@ namespace BeatSaberSongGenerator.ViewModels
 
         private void GenerateSong()
         {
+            GenerateButtonText = "Generating...";
+            ProgressBarVisibility = Visibility.Visible;
+            MessageBox.Show("This may take a few minutes and the application might hang during that time. " + Environment.NewLine
+                            + "Unless you get dialogs other than this one you just have to be patient.");
+
             var songGenerator = new SongGenerator(new SongGeneratorSettings
             {
                 SkillLevel = SkillLevel,
@@ -155,6 +184,10 @@ namespace BeatSaberSongGenerator.ViewModels
                 Path.GetDirectoryName(AudioFilePath),
                 Path.GetFileNameWithoutExtension(AudioFilePath));
             songStorer.Store(song, outputDirectory);
+
+            MessageBox.Show("Song successfully generated");
+            GenerateButtonText = DefaultGenerateButtonText;
+            ProgressBarVisibility = Visibility.Collapsed;
         }
     }
 }

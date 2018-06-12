@@ -31,7 +31,6 @@ namespace BeatSaberSongGenerator.Generators
             var notes = GenerateModifiedBaseRhythm(difficulty, audioMetadata);
             var obstacles = obstacleGenerator.Generate(difficulty, audioMetadata);
             notes = RemoveNotesOverlappingWithObstacle(notes, obstacles).ToList();
-            notes.Take(10).ForEach(note => note.Hand = Hand.Bomb);
             return new LevelInstructions
             {
                 Version = "1.5.0",
