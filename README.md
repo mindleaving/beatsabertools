@@ -21,4 +21,8 @@ This tool comes "as-is" with no support or warrenty (see LICENSE). If something 
 
 The generated song and corresponding levels are stored in the same directory as the audio file within a directory of the same name. That directy must then be placed in the "CustomSongs" folder in the Beat Saber directory.
 
+**Acknowledgements**
 
+- File format specifications by Reaxt: https://steamcommunity.com/sharedfiles/filedetails/?id=1377190061
+- NWaves (signal processing library) by ar1st0crat: https://github.com/ar1st0crat/NWaves
+- .NET-Ogg-Vorbis-Encoder: https://github.com/SteveLillis/.NET-Ogg-Vorbis-Encoder
