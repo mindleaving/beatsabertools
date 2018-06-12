@@ -1,6 +1,8 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Commons;
+using MathNet.Numerics.Statistics;
 using OggVorbisEncoder;
 
 namespace BeatSaberSongGenerator.AudioProcessing
@@ -31,11 +33,19 @@ namespace BeatSaberSongGenerator.AudioProcessing
 
                 // Store audio
                 var processingState = ProcessingState.Create(audioInfo);
-                var channelArrays = channels.Select(channel => channel.ToArray()).ToArray();
-                processingState.WriteData(channelArrays, channelArrays[0].Length);
+                var normalizedChannels = Normalize(channels);
+                processingState.WriteData(normalizedChannels, normalizedChannels[0].Length);
                 processingState.WriteEndOfStream();
                 WriteAudio(oggStream, outputStream, processingState);
             }
+        }
+
+        private static float[][] Normalize(List<IList<float>> channels)
+        {
+            var maxIntensity = channels.SelectMany(channel => channel).MaximumAbsolute();
+            return channels
+                .Select(channel => channel.Select(x => x / maxIntensity).ToArray())
+                .ToArray();
         }
 
         private static void WriteHeader(OggStream oggStream, Stream outputStream)

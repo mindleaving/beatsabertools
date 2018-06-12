@@ -21,6 +21,21 @@ namespace BeatSaberSongGenerator.Generators
             };
         }
 
+        public static IEnumerable<Note> OppositeDownUp(
+            float time, 
+            CutDirection leftCutDirection,
+            HorizontalPosition leftHorizontalPosition,
+            VerticalPosition verticalPosition)
+        {
+            if(leftHorizontalPosition == HorizontalPosition.Right)
+                throw new ArgumentOutOfRangeException(nameof(leftHorizontalPosition));
+            return new []
+            {
+                new Note(time, Hand.Left, leftCutDirection, leftHorizontalPosition, verticalPosition), 
+                new Note(time, Hand.Right, leftCutDirection.Invert(), leftHorizontalPosition+1, verticalPosition)
+            };
+        }
+
         public static IEnumerable<Note> DoubleDownUp(
             float time, 
             HorizontalPosition leftHorizontalPosition,
@@ -63,7 +78,7 @@ namespace BeatSaberSongGenerator.Generators
             };
         }
 
-        public static IEnumerable<Note> CrossDouble(
+        public static IEnumerable<Note> CrossDoubleDownDiagonal(
             float time, 
             VerticalPosition verticalPosition)
         {
@@ -71,6 +86,32 @@ namespace BeatSaberSongGenerator.Generators
             {
                 new Note(time, Hand.Left, CutDirection.DownRight, HorizontalPosition.CenterLeft, verticalPosition),
                 new Note(time, Hand.Right, CutDirection.DownLeft, HorizontalPosition.CenterRight, verticalPosition)
+            };
+        }
+
+        public static IEnumerable<Note> CrossDoubleHorizontalRedBlue(
+            float time, 
+            VerticalPosition verticalPosition)
+        {
+            if(verticalPosition == VerticalPosition.Top)
+                throw new ArgumentOutOfRangeException(nameof(verticalPosition));
+            return new[]
+            {
+                new Note(time, Hand.Left, CutDirection.Right, HorizontalPosition.CenterLeft, verticalPosition+1),
+                new Note(time, Hand.Right, CutDirection.Left, HorizontalPosition.CenterRight, verticalPosition)
+            };
+        }
+
+        public static IEnumerable<Note> CrossDoubleHorizontalBlueRed(
+            float time, 
+            VerticalPosition verticalPosition)
+        {
+            if(verticalPosition == VerticalPosition.Top)
+                throw new ArgumentOutOfRangeException(nameof(verticalPosition));
+            return new[]
+            {
+                new Note(time, Hand.Left, CutDirection.Right, HorizontalPosition.CenterLeft, verticalPosition),
+                new Note(time, Hand.Right, CutDirection.Left, HorizontalPosition.CenterRight, verticalPosition+1)
             };
         }
 
@@ -97,8 +138,8 @@ namespace BeatSaberSongGenerator.Generators
                 : CutDirection.Right;
             return new[]
             {
-                new Note(time, Hand.Left, cutDirection, HorizontalPosition.Left, lowVerticalPosition + 1),
-                new Note(time, Hand.Right, cutDirection, HorizontalPosition.Right, lowVerticalPosition)
+                new Note(time, Hand.Left, cutDirection, horizontalPosition, lowVerticalPosition + 1),
+                new Note(time, Hand.Right, cutDirection, horizontalPosition, lowVerticalPosition)
             };
         }
 
@@ -114,8 +155,8 @@ namespace BeatSaberSongGenerator.Generators
                 : CutDirection.Right;
             return new[]
             {
-                new Note(time, Hand.Left, cutDirection, HorizontalPosition.Left, lowVerticalPosition),
-                new Note(time, Hand.Right, cutDirection, HorizontalPosition.Right, lowVerticalPosition+1)
+                new Note(time, Hand.Left, cutDirection, horizontalPosition, lowVerticalPosition),
+                new Note(time, Hand.Right, cutDirection, horizontalPosition, lowVerticalPosition+1)
             };
         }
 

@@ -42,6 +42,5 @@ namespace BeatSaberSongGenerator.Objects
         TriangleEnvironment = 1,
         BigMirrorEnvironment = 2,
         NiceEnvironment = 3,
-
     }
 }

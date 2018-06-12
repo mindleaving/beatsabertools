@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BeatSaberSongGenerator.AudioProcessing;
 using BeatSaberSongGenerator.Objects;
+using Commons;
 using Commons.Extensions;
 using Commons.Mathematics;
 
@@ -11,22 +12,26 @@ namespace BeatSaberSongGenerator.Generators
     public class LevelInstructionGenerator
     {
         private readonly SongGeneratorSettings settings;
+        private readonly LightEffectGenerator lightEffectGenerator;
         private readonly HandMovementGenerator handMovementGenerator;
         private readonly BaseRhythmGenerator baseRhythmGenerator;
+        private readonly ObstacleGenerator obstacleGenerator;
 
         public LevelInstructionGenerator(SongGeneratorSettings settings)
         {
             this.settings = settings;
+            lightEffectGenerator = new LightEffectGenerator();
             handMovementGenerator = new HandMovementGenerator();
             baseRhythmGenerator = new BaseRhythmGenerator();
+            obstacleGenerator = new ObstacleGenerator();
         }
 
         public LevelInstructions Generate(Difficulty difficulty, AudioMetadata audioMetadata)
         {
-            var events = new List<Event>();
+            var events = lightEffectGenerator.Generate(audioMetadata);
             //var notes = GenerateNotesFromSongAnalysis(difficulty, audioMetadata);
             var notes = GenerateModifiedBaseRhythm(difficulty, audioMetadata);
-            var obstacles = new List<Obstacle>();
+            var obstacles = obstacleGenerator.Generate(difficulty, audioMetadata);
             return new LevelInstructions
             {
                 Version = "1.5.0",
@@ -91,7 +96,7 @@ namespace BeatSaberSongGenerator.Generators
             Note lastNote = null;
             foreach (var baseNote in baseNotes)
             {
-                var noteTime = TimeConversion.BeatIndexToTimeSpan(baseNote.Time, bpm);
+                var noteTime = TimeConversion.BeatIndexToRealTime(baseNote.Time, bpm);
                 var noteTimeInSamples = noteTime.TotalSeconds * sampleRate;
                 if (noteTime < TimeSpan.FromSeconds(3))
                     continue; // Stop a few seconds before song ends
@@ -101,7 +106,7 @@ namespace BeatSaberSongGenerator.Generators
                 if (lastNote != null)
                 {
                     var timeSinceLastBeat = noteTime
-                                            - TimeConversion.BeatIndexToTimeSpan(lastNote.Time, bpm);
+                                            - TimeConversion.BeatIndexToRealTime(lastNote.Time, bpm);
                     if (currentIntensity.IsNaN())
                         currentIntensity = 0;
                     var intensityAdjustment = TimeSpan.FromSeconds(0.5 * (1 - currentIntensity));
@@ -111,8 +116,8 @@ namespace BeatSaberSongGenerator.Generators
                         continue;
                     }
                 }
-
-                if (currentIntensity < 0.5)
+                var noteProbability = currentIntensity < 0.3 ? 0 : currentIntensity;
+                if(StaticRandom.Rng.NextDouble() > noteProbability)
                     continue;
                 notes.Add(baseNote);
                 lastNote = baseNote;

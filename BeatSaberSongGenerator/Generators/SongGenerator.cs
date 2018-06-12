@@ -3,6 +3,7 @@ using System.Linq;
 using BeatSaberSongGenerator.AudioProcessing;
 using BeatSaberSongGenerator.IO;
 using BeatSaberSongGenerator.Objects;
+using Commons;
 
 namespace BeatSaberSongGenerator.Generators
 {
@@ -22,7 +23,7 @@ namespace BeatSaberSongGenerator.Generators
             var audioMetadata = GetAudioMetadata(audioFilePath);
             audioMetadata.SongName = songName;
             audioMetadata.Author = author;
-            var environmentType = EnvironmentType.DefaultEnvironment;
+            var environmentType = SelectEnvironmentType();
             var difficulties = new []{ Difficulty.Easy, Difficulty.Normal, Difficulty.Hard, Difficulty.Expert};
             var songInfo = new SongInfo
             {
@@ -40,6 +41,13 @@ namespace BeatSaberSongGenerator.Generators
                 difficulty => difficulty, 
                 difficulty => levelInstructionGenerator.Generate(difficulty, audioMetadata));
             return new Song(songInfo, levelInstructions, audioFilePath, coverFilePath);
+        }
+
+        private static EnvironmentType SelectEnvironmentType()
+        {
+            var environmentTypes = (EnvironmentType[]) Enum.GetValues(typeof(EnvironmentType));
+            var environmentType = environmentTypes[StaticRandom.Rng.Next(environmentTypes.Length)];
+            return environmentType;
         }
 
         private DifficultyLevel GenerateDifficultyLevel(Difficulty difficulty)

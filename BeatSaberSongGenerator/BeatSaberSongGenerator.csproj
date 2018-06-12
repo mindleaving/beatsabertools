@@ -92,11 +92,14 @@
     <Compile Include="AudioProcessing\BeatMerger.cs" />
     <Compile Include="Generators\BaseRhythmGenerator.cs" />
     <Compile Include="Generators\HandMovementGenerator.cs" />
+    <Compile Include="Generators\LightEffectGenerator.cs" />
     <Compile Include="Generators\NoteCombinationLibrary.cs" />
+    <Compile Include="Generators\ObstacleGenerator.cs" />
     <Compile Include="Generators\TimeConversion.cs" />
     <Compile Include="IO\SongStorer.cs" />
     <Compile Include="Generators\LevelInstructionGenerator.cs" />
     <Compile Include="Objects\AudioMetadata.cs" />
+    <Compile Include="Objects\BeatConfiguration.cs" />
     <Compile Include="Objects\CutDirection.cs" />
     <Compile Include="Objects\Difficulty.cs" />
     <Compile Include="Objects\DifficultyLevel.cs" />

@@ -10,12 +10,12 @@ namespace BeatSaberSongGenerator.Generators
             return (float) (sampleIndex * beatsPerSecond / sampleRate);
         }
 
-        public static TimeSpan SampleIndexToTime(int sampleIndex, int sampleRate)
+        public static TimeSpan SampleIndexToRealTime(int sampleIndex, int sampleRate)
         {
             return TimeSpan.FromSeconds(sampleIndex / (double)sampleRate);
         }
 
-        public static TimeSpan BeatIndexToTimeSpan(float beatIndex, double bpm)
+        public static TimeSpan BeatIndexToRealTime(float beatIndex, double bpm)
         {
             return TimeSpan.FromSeconds(beatIndex * 60 / bpm);
         }
