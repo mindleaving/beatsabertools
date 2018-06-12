@@ -2,6 +2,7 @@
 {
     public enum ObstableType
     {
-        Wall = 0
+        WallFullHeight = 0,
+        WallHalfHeight = 1
     }
 }

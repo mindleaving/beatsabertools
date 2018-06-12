@@ -91,7 +91,6 @@
     <Compile Include="AudioProcessing\BeatDetectorTraining.cs" />
     <Compile Include="AudioProcessing\BeatMerger.cs" />
     <Compile Include="Generators\BaseRhythmGenerator.cs" />
-    <Compile Include="Generators\HandMovementGenerator.cs" />
     <Compile Include="Generators\LightEffectGenerator.cs" />
     <Compile Include="Generators\NoteCombinationLibrary.cs" />
     <Compile Include="Generators\ObstacleGenerator.cs" />

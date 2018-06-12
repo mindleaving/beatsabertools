@@ -13,7 +13,6 @@ namespace BeatSaberSongGenerator.Generators
     {
         private readonly SongGeneratorSettings settings;
         private readonly LightEffectGenerator lightEffectGenerator;
-        private readonly HandMovementGenerator handMovementGenerator;
         private readonly BaseRhythmGenerator baseRhythmGenerator;
         private readonly ObstacleGenerator obstacleGenerator;
 
@@ -21,7 +20,6 @@ namespace BeatSaberSongGenerator.Generators
         {
             this.settings = settings;
             lightEffectGenerator = new LightEffectGenerator();
-            handMovementGenerator = new HandMovementGenerator();
             baseRhythmGenerator = new BaseRhythmGenerator();
             obstacleGenerator = new ObstacleGenerator();
         }
@@ -32,6 +30,8 @@ namespace BeatSaberSongGenerator.Generators
             //var notes = GenerateNotesFromSongAnalysis(difficulty, audioMetadata);
             var notes = GenerateModifiedBaseRhythm(difficulty, audioMetadata);
             var obstacles = obstacleGenerator.Generate(difficulty, audioMetadata);
+            notes = RemoveNotesOverlappingWithObstacle(notes, obstacles).ToList();
+            notes.Take(10).ForEach(note => note.Hand = Hand.Bomb);
             return new LevelInstructions
             {
                 Version = "1.5.0",
@@ -44,6 +44,33 @@ namespace BeatSaberSongGenerator.Generators
                 Notes = notes,
                 Obstacles = obstacles
             };
+        }
+
+        private IEnumerable<Note> RemoveNotesOverlappingWithObstacle(IEnumerable<Note> notes, List<Obstacle> obstacles)
+        {
+            var obstacleQueue = new Queue<Obstacle>(obstacles.OrderBy(x => x.Time));
+            var activeObstacles = new List<Obstacle>();
+            foreach (var note in notes)
+            {
+                activeObstacles.RemoveAll(obstacle => obstacle.Time + obstacle.Duration < note.Time);
+                while (obstacleQueue.Count > 0 && obstacleQueue.Peek().Time < note.Time)
+                {
+                    var obstacle = obstacleQueue.Dequeue();
+                    if(obstacle.Time + obstacle.Duration > note.Time)
+                        activeObstacles.Add(obstacle);
+                }
+                var isOverlapping = activeObstacles.Any(obstacle => IsNoteOverlappingObstacle(note, obstacle));
+                if (!isOverlapping)
+                    yield return note;
+            }
+        }
+
+        private static bool IsNoteOverlappingObstacle(Note note, Obstacle obstacle)
+        {
+            var isHorizontalOverlap = note.HorizontalPosition >= obstacle.HorizontalPosition
+                                      && note.HorizontalPosition <= obstacle.HorizontalPosition + obstacle.Width;
+            var isVerticalOverlap = (int)note.VerticalPosition >= (int)obstacle.Type;
+            return isHorizontalOverlap && isVerticalOverlap;
         }
 
         private IList<Note> GenerateModifiedBaseRhythm(Difficulty difficulty, AudioMetadata audioMetadata)
@@ -59,30 +86,6 @@ namespace BeatSaberSongGenerator.Generators
             var notes = baseRhythmGenerator.Generate(audioMetadata.BeatDetectorResult.BeatsPerBar, barCount, startBeatIdx);
             var difficultyFilteredNotes = FilterNotesByDifficulty(notes, audioMetadata, difficulty);
             return difficultyFilteredNotes;
-        }
-
-        private IList<Note> GenerateNotesFromSongAnalysis(Difficulty difficulty, AudioMetadata audioMetadata)
-        {
-            var sampleRate = audioMetadata.SampleRate;
-            var bpm = audioMetadata.BeatDetectorResult.BeatsPerMinute;
-            var totalSamples = (int)(audioMetadata.Length.TotalSeconds * sampleRate);
-            var songIntensities = audioMetadata.BeatDetectorResult.SongIntensities;
-            var beats = BeatMerger.Merge(
-                audioMetadata.BeatDetectorResult.DetectedBeats, 
-                audioMetadata.BeatDetectorResult.RegularBeats, 
-                sampleRate);
-            var handMovements = handMovementGenerator.GenerateFromSongIntensityAndBeats(
-                songIntensities, 
-                beats, 
-                difficulty, 
-                settings.SkillLevel, 
-                totalSamples, 
-                sampleRate, 
-                bpm);
-            var baseNotes = handMovements.LeftHand.Concat(handMovements.RightHand).OrderBy(x => x.Time);
-
-            var notes = FilterNotesByDifficulty(baseNotes, audioMetadata, difficulty);
-            return notes;
         }
 
         private List<Note> FilterNotesByDifficulty(IEnumerable<Note> baseNotes, AudioMetadata audioMetadata, Difficulty difficulty)

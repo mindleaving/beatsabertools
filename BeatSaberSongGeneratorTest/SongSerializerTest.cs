@@ -71,7 +71,7 @@ namespace BeatSabeSonglGeneratorTest
                             new Obstacle
                             {
                                 Time = 4.2f,
-                                Type = ObstableType.Wall,
+                                Type = ObstableType.WallFullHeight,
                                 HorizontalPosition = HorizontalPosition.CenterLeft,
                                 Duration = 3.5f,
                                 Width = 1
