@@ -23,6 +23,10 @@ The generated song and corresponding levels are stored in the same directory as 
 
 **Acknowledgements**
 
+Like many other software projects I do depend on the great work of others. A special shout out to these knowledge sources and code projects:
+
 - File format specifications by Reaxt: https://steamcommunity.com/sharedfiles/filedetails/?id=1377190061
 - NWaves (signal processing library) by ar1st0crat: https://github.com/ar1st0crat/NWaves
 - .NET-Ogg-Vorbis-Encoder: https://github.com/SteveLillis/.NET-Ogg-Vorbis-Encoder
+- NAudio: https://github.com/naudio/NAudio
+- Json.NET from NewtonSoft: https://www.newtonsoft.com/json

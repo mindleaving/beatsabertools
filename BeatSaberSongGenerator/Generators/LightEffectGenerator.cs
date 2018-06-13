@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using BeatSaberSongGenerator.Objects;
 using Commons;
+using Commons.Extensions;
 using Commons.Mathematics;
-using MathNet.Numerics;
 
 namespace BeatSaberSongGenerator.Generators
 {

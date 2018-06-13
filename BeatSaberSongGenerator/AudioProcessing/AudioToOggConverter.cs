@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Commons;
-using MathNet.Numerics.Statistics;
 using OggVorbisEncoder;
 
 namespace BeatSaberSongGenerator.AudioProcessing
@@ -42,7 +42,7 @@ namespace BeatSaberSongGenerator.AudioProcessing
 
         private static float[][] Normalize(List<IList<float>> channels)
         {
-            var maxIntensity = channels.SelectMany(channel => channel).MaximumAbsolute();
+            var maxIntensity = channels.SelectMany(channel => channel).Max(x => Math.Abs(x));
             return channels
                 .Select(channel => channel.Select(x => x / maxIntensity).ToArray())
                 .ToArray();
