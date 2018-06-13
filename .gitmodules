@@ -1,6 +1,6 @@
 [submodule "commons"]
 	path = commons
-	url = git@github.com:mindleaving/commons.git
+	url = https://github.com/mindleaving/commons.git
 	branch = master
 [submodule "NWaves"]
 	path = NWaves
