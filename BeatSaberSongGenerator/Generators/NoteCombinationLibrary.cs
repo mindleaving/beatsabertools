@@ -9,20 +9,20 @@ namespace BeatSaberSongGenerator.Generators
     public static class NoteCombinationLibrary
     {
         public static IEnumerable<Note> DownUp(
-            int beatIndex, 
+            float time, 
             Hand hand,
             HorizontalPosition horizontalPosition,
             VerticalPosition verticalPosition)
         {
             return new []
             {
-                new Note(beatIndex, hand, CutDirection.Down, horizontalPosition, verticalPosition), 
-                new Note(beatIndex+1, hand, CutDirection.Up, horizontalPosition, verticalPosition)
+                new Note(time, hand, CutDirection.Down, horizontalPosition, verticalPosition), 
+                new Note(time + 0.5f, hand, CutDirection.Up, horizontalPosition, verticalPosition)
             };
         }
 
         public static IEnumerable<Note> OppositeDownUp(
-            int beatIndex,
+            float time, 
             CutDirection leftCutDirection,
             HorizontalPosition leftHorizontalPosition,
             VerticalPosition verticalPosition)
@@ -31,25 +31,25 @@ namespace BeatSaberSongGenerator.Generators
                 throw new ArgumentOutOfRangeException(nameof(leftHorizontalPosition));
             return new []
             {
-                new Note(beatIndex, Hand.Left, leftCutDirection, leftHorizontalPosition, verticalPosition), 
-                new Note(beatIndex, Hand.Right, leftCutDirection.Invert(), leftHorizontalPosition+1, verticalPosition)
+                new Note(time, Hand.Left, leftCutDirection, leftHorizontalPosition, verticalPosition), 
+                new Note(time, Hand.Right, leftCutDirection.Invert(), leftHorizontalPosition+1, verticalPosition)
             };
         }
 
         public static IEnumerable<Note> DoubleDownUp(
-            int beatIndex,
+            float time, 
             HorizontalPosition leftHorizontalPosition,
             VerticalPosition verticalPosition)
         {
             if(leftHorizontalPosition == HorizontalPosition.Right)
                 throw new ArgumentOutOfRangeException(nameof(leftHorizontalPosition));
-            return DownUp(beatIndex, Hand.Left, leftHorizontalPosition, verticalPosition)
-                .Concat(DownUp(beatIndex, Hand.Right, leftHorizontalPosition + 1, verticalPosition))
+            return DownUp(time, Hand.Left, leftHorizontalPosition, verticalPosition)
+                .Concat(DownUp(time, Hand.Right, leftHorizontalPosition + 1, verticalPosition))
                 .OrderBy(x => x.Time);
         }
 
         public static IEnumerable<Note> Double(
-            int beatIndex,
+            float time, 
             CutDirection cutDirection,
             HorizontalPosition leftHorizontalPosition,
             VerticalPosition verticalPosition)
@@ -58,13 +58,13 @@ namespace BeatSaberSongGenerator.Generators
                 throw new ArgumentOutOfRangeException(nameof(leftHorizontalPosition));
             return new[]
             {
-                new Note(beatIndex, Hand.Left, cutDirection, leftHorizontalPosition, verticalPosition),
-                new Note(beatIndex, Hand.Right, cutDirection, leftHorizontalPosition + 1, verticalPosition)
+                new Note(time, Hand.Left, cutDirection, leftHorizontalPosition, verticalPosition),
+                new Note(time, Hand.Right, cutDirection, leftHorizontalPosition + 1, verticalPosition)
             };
         }
 
         public static IEnumerable<Note> ReversedDouble(
-            int beatIndex,
+            float time, 
             CutDirection cutDirection,
             HorizontalPosition leftHorizontalPosition,
             VerticalPosition verticalPosition)
@@ -73,61 +73,61 @@ namespace BeatSaberSongGenerator.Generators
                 throw new ArgumentOutOfRangeException(nameof(leftHorizontalPosition));
             return new[]
             {
-                new Note(beatIndex, Hand.Left, cutDirection, leftHorizontalPosition, verticalPosition),
-                new Note(beatIndex, Hand.Right, cutDirection, leftHorizontalPosition - 1, verticalPosition)
+                new Note(time, Hand.Left, cutDirection, leftHorizontalPosition, verticalPosition),
+                new Note(time, Hand.Right, cutDirection, leftHorizontalPosition - 1, verticalPosition)
             };
         }
 
         public static IEnumerable<Note> CrossDoubleDownDiagonal(
-            int beatIndex,
+            float time, 
             VerticalPosition verticalPosition)
         {
             return new[]
             {
-                new Note(beatIndex, Hand.Left, CutDirection.DownRight, HorizontalPosition.CenterLeft, verticalPosition),
-                new Note(beatIndex, Hand.Right, CutDirection.DownLeft, HorizontalPosition.CenterRight, verticalPosition)
+                new Note(time, Hand.Left, CutDirection.DownRight, HorizontalPosition.CenterLeft, verticalPosition),
+                new Note(time, Hand.Right, CutDirection.DownLeft, HorizontalPosition.CenterRight, verticalPosition)
             };
         }
 
         public static IEnumerable<Note> CrossDoubleHorizontalRedBlue(
-            int beatIndex,
+            float time, 
             VerticalPosition verticalPosition)
         {
             if(verticalPosition == VerticalPosition.Top)
                 throw new ArgumentOutOfRangeException(nameof(verticalPosition));
             return new[]
             {
-                new Note(beatIndex, Hand.Left, CutDirection.Right, HorizontalPosition.CenterLeft, verticalPosition+1),
-                new Note(beatIndex, Hand.Right, CutDirection.Left, HorizontalPosition.CenterRight, verticalPosition)
+                new Note(time, Hand.Left, CutDirection.Right, HorizontalPosition.CenterLeft, verticalPosition+1),
+                new Note(time, Hand.Right, CutDirection.Left, HorizontalPosition.CenterRight, verticalPosition)
             };
         }
 
         public static IEnumerable<Note> CrossDoubleHorizontalBlueRed(
-            int beatIndex,
+            float time, 
             VerticalPosition verticalPosition)
         {
             if(verticalPosition == VerticalPosition.Top)
                 throw new ArgumentOutOfRangeException(nameof(verticalPosition));
             return new[]
             {
-                new Note(beatIndex, Hand.Left, CutDirection.Right, HorizontalPosition.CenterLeft, verticalPosition),
-                new Note(beatIndex, Hand.Right, CutDirection.Left, HorizontalPosition.CenterRight, verticalPosition+1)
+                new Note(time, Hand.Left, CutDirection.Right, HorizontalPosition.CenterLeft, verticalPosition),
+                new Note(time, Hand.Right, CutDirection.Left, HorizontalPosition.CenterRight, verticalPosition+1)
             };
         }
 
         public static IEnumerable<Note> DiagonalDownDouble(
-            int beatIndex,
+            float time, 
             VerticalPosition verticalPosition)
         {
             return new[]
             {
-                new Note(beatIndex, Hand.Left, CutDirection.DownLeft, HorizontalPosition.Left, verticalPosition),
-                new Note(beatIndex, Hand.Right, CutDirection.DownRight, HorizontalPosition.Right, verticalPosition)
+                new Note(time, Hand.Left, CutDirection.DownLeft, HorizontalPosition.Left, verticalPosition),
+                new Note(time, Hand.Right, CutDirection.DownRight, HorizontalPosition.Right, verticalPosition)
             };
         }
 
         public static IEnumerable<Note> RedBlueStacked(
-            int beatIndex,
+            float time,
             HorizontalPosition horizontalPosition,
             VerticalPosition lowVerticalPosition)
         {
@@ -138,13 +138,13 @@ namespace BeatSaberSongGenerator.Generators
                 : CutDirection.Right;
             return new[]
             {
-                new Note(beatIndex, Hand.Left, cutDirection, horizontalPosition, lowVerticalPosition + 1),
-                new Note(beatIndex, Hand.Right, cutDirection, horizontalPosition, lowVerticalPosition)
+                new Note(time, Hand.Left, cutDirection, horizontalPosition, lowVerticalPosition + 1),
+                new Note(time, Hand.Right, cutDirection, horizontalPosition, lowVerticalPosition)
             };
         }
 
         public static IEnumerable<Note> BlueRedStacked(
-            int beatIndex,
+            float time,
             HorizontalPosition horizontalPosition,
             VerticalPosition lowVerticalPosition)
         {
@@ -155,13 +155,13 @@ namespace BeatSaberSongGenerator.Generators
                 : CutDirection.Right;
             return new[]
             {
-                new Note(beatIndex, Hand.Left, cutDirection, horizontalPosition, lowVerticalPosition),
-                new Note(beatIndex, Hand.Right, cutDirection, horizontalPosition, lowVerticalPosition+1)
+                new Note(time, Hand.Left, cutDirection, horizontalPosition, lowVerticalPosition),
+                new Note(time, Hand.Right, cutDirection, horizontalPosition, lowVerticalPosition+1)
             };
         }
 
         public static IEnumerable<Note> RightLeft(
-            int beatIndex,
+            float time,
             HorizontalPosition leftHorizontalPosition,
             VerticalPosition verticalPosition)
         {
@@ -169,13 +169,13 @@ namespace BeatSaberSongGenerator.Generators
                 throw new ArgumentOutOfRangeException(nameof(leftHorizontalPosition));
             return new[]
             {
-                new Note(beatIndex, Hand.Right, CutDirection.Down, leftHorizontalPosition+1, verticalPosition),
-                new Note(beatIndex+1, Hand.Left, CutDirection.Down, leftHorizontalPosition, verticalPosition)
+                new Note(time, Hand.Right, CutDirection.Down, leftHorizontalPosition+1, verticalPosition),
+                new Note(time+0.5f, Hand.Left, CutDirection.Down, leftHorizontalPosition, verticalPosition)
             };
         }
 
         public static IEnumerable<Note> LeftRight(
-            int beatIndex,
+            float time,
             HorizontalPosition leftHorizontalPosition,
             VerticalPosition verticalPosition)
         {
@@ -183,8 +183,8 @@ namespace BeatSaberSongGenerator.Generators
                 throw new ArgumentOutOfRangeException(nameof(leftHorizontalPosition));
             return new[]
             {
-                new Note(beatIndex, Hand.Left, CutDirection.Down, leftHorizontalPosition, verticalPosition),
-                new Note(beatIndex+1, Hand.Right, CutDirection.Down, leftHorizontalPosition+1, verticalPosition)
+                new Note(time, Hand.Left, CutDirection.Down, leftHorizontalPosition, verticalPosition),
+                new Note(time+0.5f, Hand.Right, CutDirection.Down, leftHorizontalPosition+1, verticalPosition)
             };
         }
     }

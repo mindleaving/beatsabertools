@@ -5,13 +5,12 @@ namespace BeatSaberSongGenerator.AudioProcessing
 {
     public static class AudioSampleReader
     {
-        public static IList<float> ReadMonoSamples(string audioFilePath, out int sampleRate, out double songLength)
+        public static IList<float> ReadMonoSamples(string audioFilePath, out int sampleRate)
         {
             var audioData = new List<float>();
             var buffer = new float[1];
             using (var audioReader = new AudioFileReader(audioFilePath))
             {
-                songLength = audioReader.TotalTime.TotalSeconds;
                 var sampleProvider = audioReader.ToSampleProvider();
                 sampleRate = sampleProvider.WaveFormat.SampleRate;
                 var channelCount = sampleProvider.WaveFormat.Channels;

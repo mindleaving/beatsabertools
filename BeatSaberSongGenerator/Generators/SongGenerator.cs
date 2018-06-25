@@ -66,13 +66,14 @@ namespace BeatSaberSongGenerator.Generators
 
         private AudioMetadata GetAudioMetadata(string audioFilePath)
         {
-            var audioData = AudioSampleReader.ReadMonoSamples(audioFilePath, out var sampleRate, out double songLenghInSeconds);
-            var beatDetectorResult = beatDetector.DetectBeats(audioData, sampleRate, songLenghInSeconds);
-            
+            var audioData = AudioSampleReader.ReadMonoSamples(audioFilePath, out var sampleRate);
+            var songLength = TimeSpan.FromSeconds(audioData.Count / (double)sampleRate);
+            var beatDetectorResult = beatDetector.DetectBeats(audioData, sampleRate);
+
             return new AudioMetadata
             {
                 SampleRate = sampleRate,
-                Length = TimeSpan.FromSeconds(audioData.Count / (double)sampleRate),
+                Length = songLength,
                 BeatDetectorResult = beatDetectorResult
             };
         }

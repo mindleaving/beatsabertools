@@ -9,46 +9,65 @@ namespace BeatSaberSongGenerator.Generators
 {
     public class BaseRhythmGenerator
     {
-        private Random rand = new Random();
-
-        HorizontalPosition GetRandHorPosition()
+        private static HorizontalPosition GetRandHorPosition()
         {
-            int val = rand.Next(0,4);
-            if (val == 0) return HorizontalPosition.CenterLeft;
-            if (val == 1) return HorizontalPosition.CenterRight;
-            if (val == 2) return HorizontalPosition.Left;
-            if (val == 3) return HorizontalPosition.Right;
-            return HorizontalPosition.Right;
+            var val = StaticRandom.Rng.Next(0,4);
+            switch (val)
+            {
+                case 0:
+                    return HorizontalPosition.CenterLeft;
+                case 1:
+                    return HorizontalPosition.CenterRight;
+                case 2:
+                    return HorizontalPosition.Left;
+                case 3:
+                    return HorizontalPosition.Right;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(val));
+            }
         }
 
-        VerticalPosition GetRandVertPosition()
+        private static VerticalPosition GetRandVertPosition()
         {
-            int val = rand.Next(0,3);
-            if (val == 0) return VerticalPosition.Bottom;
-            if (val == 1) return VerticalPosition.Middle;
-            if (val == 2) return VerticalPosition.Top;
-            return VerticalPosition.Bottom;
+            var val = StaticRandom.Rng.Next(0,3);
+            switch (val)
+            {
+                case 0:
+                    return VerticalPosition.Bottom;
+                case 1:
+                    return VerticalPosition.Middle;
+                case 2:
+                    return VerticalPosition.Top;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(val));
+            }
         }
 
-        Hand GetRandomHand()
+        private static Hand GetRandomHand()
         {
-            int val = rand.Next(0, 2);
-            if (val == 0) return Hand.Left;
-            if (val == 1) return Hand.Right;
-            return Hand.Left;
+            var val = StaticRandom.Rng.Next(0, 2);
+            switch (val)
+            {
+                case 0:
+                    return Hand.Left;
+                case 1:
+                    return Hand.Right;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(val));
+            }
         }
 
         public List<Note> Generate(List<Beat> mergedBeats, AudioMetadata metadata)
         {
             var notes = new List<Note>();
-            for (var i = 0; i < metadata.BeatDetectorResult.DetectedBeats.Count(); ++i)
+            foreach (var beat in metadata.BeatDetectorResult.DetectedBeats)
             {
-                Note n = new Note(i, Hand.Left, CutDirection.Any, HorizontalPosition.CenterLeft, VerticalPosition.Middle);
-                n.HorizontalPosition = GetRandHorPosition();
-                n.VerticalPosition = GetRandVertPosition();
-                n.Hand = GetRandomHand();
-                n.Time = (float)(metadata.BeatDetectorResult.BeatsPerMinute * (double)metadata.BeatDetectorResult.DetectedBeats[i].SampleIndex / (double)metadata.SampleRate / 60.0);
-                notes.Add(n);
+                var time = TimeConversion.SampleIndexToBeatIndex(
+                    beat.SampleIndex,
+                    metadata.SampleRate,
+                    metadata.BeatDetectorResult.BeatsPerMinute);
+                var note = new Note(time, GetRandomHand(), CutDirection.Any, GetRandHorPosition(), GetRandVertPosition());
+                notes.Add(note);
             }
             /*
             var barConfiguration = Enumerable.Range(0, beatsPerBar)
@@ -99,7 +118,7 @@ namespace BeatSaberSongGenerator.Generators
         }
 
         private const int AvailableCombinations = 14;
-        private IEnumerable<Note> GetCombination(int beatIndex, BeatConfiguration beatConfiguration)
+        private IEnumerable<Note> GetCombination(float time, BeatConfiguration beatConfiguration)
         {
             var combinationIndex = beatConfiguration.CombinationIdx;
             var hand = beatConfiguration.Hand;
@@ -108,34 +127,34 @@ namespace BeatSaberSongGenerator.Generators
             switch (combinationIndex)
             {
                 case 0:
-                    return NoteCombinationLibrary.DownUp(beatIndex, hand, horizontalPosition, verticalPosition);
+                    return NoteCombinationLibrary.DownUp(time, hand, horizontalPosition, verticalPosition);
                 case 1:
-                    return NoteCombinationLibrary.BlueRedStacked(beatIndex, horizontalPosition, verticalPosition);
+                    return NoteCombinationLibrary.BlueRedStacked(time, horizontalPosition, verticalPosition);
                 case 2:
-                    return NoteCombinationLibrary.RedBlueStacked(beatIndex, horizontalPosition, verticalPosition);
+                    return NoteCombinationLibrary.RedBlueStacked(time, horizontalPosition, verticalPosition);
                 case 3:
-                    return NoteCombinationLibrary.CrossDoubleDownDiagonal(beatIndex, verticalPosition);
+                    return NoteCombinationLibrary.CrossDoubleDownDiagonal(time, verticalPosition);
                 case 4:
-                    return NoteCombinationLibrary.DiagonalDownDouble(beatIndex, verticalPosition);
+                    return NoteCombinationLibrary.DiagonalDownDouble(time, verticalPosition);
                 case 5:
-                    return NoteCombinationLibrary.DoubleDownUp(beatIndex, horizontalPosition, verticalPosition);
+                    return NoteCombinationLibrary.DoubleDownUp(time, horizontalPosition, verticalPosition);
                 case 6:
-                    return NoteCombinationLibrary.LeftRight(beatIndex, horizontalPosition, verticalPosition);
+                    return NoteCombinationLibrary.LeftRight(time, horizontalPosition, verticalPosition);
                 case 7:
-                    return NoteCombinationLibrary.RightLeft(beatIndex, horizontalPosition, verticalPosition);
+                    return NoteCombinationLibrary.RightLeft(time, horizontalPosition, verticalPosition);
                 case 8:
-                    return NoteCombinationLibrary.Double(beatIndex, CutDirection.Down, horizontalPosition, verticalPosition);
+                    return NoteCombinationLibrary.Double(time, CutDirection.Down, horizontalPosition, verticalPosition);
                 case 9:
-                    return NoteCombinationLibrary.ReversedDouble(beatIndex, CutDirection.Down, horizontalPosition, verticalPosition);
+                    return NoteCombinationLibrary.ReversedDouble(time, CutDirection.Down, horizontalPosition, verticalPosition);
                 case 10:
-                    return new[] {new Note(beatIndex, hand, CutDirection.Down, horizontalPosition, verticalPosition)};
+                    return new[] {new Note(time, hand, CutDirection.Down, horizontalPosition, verticalPosition)};
                 case 11:
                     var cutDirection = StaticRandom.Rng.Next(2) == 1 ? CutDirection.Down : CutDirection.Up;
-                    return NoteCombinationLibrary.OppositeDownUp(beatIndex, cutDirection, horizontalPosition, verticalPosition);
+                    return NoteCombinationLibrary.OppositeDownUp(time, cutDirection, horizontalPosition, verticalPosition);
                 case 12:
-                    return NoteCombinationLibrary.CrossDoubleHorizontalBlueRed(beatIndex, verticalPosition);
+                    return NoteCombinationLibrary.CrossDoubleHorizontalBlueRed(time, verticalPosition);
                 case 13:
-                    return NoteCombinationLibrary.CrossDoubleHorizontalRedBlue(beatIndex, verticalPosition);
+                    return NoteCombinationLibrary.CrossDoubleHorizontalRedBlue(time, verticalPosition);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(combinationIndex));
             }

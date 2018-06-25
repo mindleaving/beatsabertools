@@ -49,12 +49,13 @@ namespace BeatSaberSongGenerator.AudioProcessing
         /// <param name="signal">Expected to be normalized to -1 to 1</param>
         /// <param name="sampleRate">Sample rate of signal</param>
         /// <returns>Sample indices of beats</returns>
-        public BeatDetectorResult DetectBeats(IList<float> signal, int sampleRate, double songLengthInSeconds)
+        public BeatDetectorResult DetectBeats(IList<float> signal, int sampleRate)
         {
             var stftWindowSize = 4096;
             var stepSize = 1024;
             var lowerLimit = 0.1 * sampleRate;
             var upperLimit = 1.0 * sampleRate;
+            var songLengthInSeconds = signal.Count / (double)sampleRate;
             
             var stft = new Stft(windowSize: stftWindowSize, hopSize: stepSize, window: WindowTypes.Hamming);
             var spectrogram = stft.Spectrogram(signal.ToArray());
@@ -160,7 +161,7 @@ namespace BeatSaberSongGenerator.AudioProcessing
             List<Beat> filteredBeats = strengthFilteredBeats;
             List<Beat> regularBeats = new List<Beat>();
             List<SongIntensity> songIntensity = new List<SongIntensity>();
-            double bpm = 60*strengthFilteredBeats.Count() / songLengthInSeconds;
+            double bpm = 60*strengthFilteredBeats.Count / songLengthInSeconds;
             return new BeatDetectorResult(bpm, 4, filteredBeats, regularBeats, songIntensity);
 
             /*
