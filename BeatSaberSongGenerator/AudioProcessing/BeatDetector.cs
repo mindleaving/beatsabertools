@@ -101,9 +101,9 @@ namespace BeatSaberSongGenerator.AudioProcessing
                 if (intensityNow > minimumIntensity)
                 {
                     var intensityBefore = spectrogram[timeIndex - 1][frequency];
-                    var intensityAfter = spectrogram[timeIndex + 1][frequency];
+                    //var intensityAfter = spectrogram[timeIndex + 1][frequency];
                     if(intensityNow > intensityBefore + requiredDelta
-                       &&intensityNow > intensityAfter + requiredDelta)
+                       /*&& intensityNow > intensityAfter + requiredDelta*/)
                     {
                         var candidate = new Beat
                         {
