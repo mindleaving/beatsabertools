@@ -4,18 +4,17 @@ using BeatSaberSongGenerator.AudioProcessing;
 using BeatSaberSongGenerator.IO;
 using BeatSaberSongGenerator.Objects;
 using Commons;
-using System.Collections.Generic;
 
 namespace BeatSaberSongGenerator.Generators
 {
     public class SongGenerator
     {
-        private readonly BeatSaberSongGenerator.AudioProcessing.BeatDetector beatDetector;
+        private readonly BeatDetector beatDetector;
         private readonly LevelInstructionGenerator levelInstructionGenerator;
             
         public SongGenerator(SongGeneratorSettings settings)
         {
-            beatDetector = new BeatSaberSongGenerator.AudioProcessing.BeatDetector();
+            beatDetector = new BeatDetector();
             levelInstructionGenerator = new LevelInstructionGenerator(settings);
         }
 
@@ -25,8 +24,7 @@ namespace BeatSaberSongGenerator.Generators
             audioMetadata.SongName = songName;
             audioMetadata.Author = author;
             var environmentType = SelectEnvironmentType();
-            //var difficulties = new[] { Difficulty.Easy, Difficulty.Normal, Difficulty.Hard, Difficulty.Expert };
-            var difficulties = new[] { Difficulty.Expert };
+            var difficulties = new[] { Difficulty.Easy, Difficulty.Normal, Difficulty.Hard, Difficulty.Expert };
             var songInfo = new SongInfo
             {
                 SongName = songName,

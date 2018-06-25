@@ -74,7 +74,6 @@ namespace BeatSaberSongGenerator.Generators
 
         private IList<Note> GenerateModifiedBaseRhythm(Difficulty difficulty, AudioMetadata audioMetadata)
         {
-            var beats = audioMetadata.BeatDetectorResult.DetectedBeats;
             /*
             var beats = BeatMerger.Merge(
                 audioMetadata.BeatDetectorResult.DetectedBeats,
@@ -85,7 +84,7 @@ namespace BeatSaberSongGenerator.Generators
             //var endBeatIdx = beats.FindLastIndex(beat => beat.Strength > 0);
             //var totalValidBeatCount = endBeatIdx - startBeatIdx + 1;
             //var barCount = totalValidBeatCount / audioMetadata.BeatDetectorResult.BeatsPerBar;
-            var notes = baseRhythmGenerator.Generate(beats, audioMetadata);
+            var notes = baseRhythmGenerator.Generate(audioMetadata);
             //var difficultyFilteredNotes = FilterNotesByDifficulty(notes, audioMetadata, difficulty);
             return notes;
         }

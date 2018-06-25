@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using BeatSaberSongGenerator.Objects;
 using Commons;
-using BeatSaberSongGenerator.AudioProcessing;
 
 namespace BeatSaberSongGenerator.Generators
 {
@@ -57,7 +56,7 @@ namespace BeatSaberSongGenerator.Generators
             }
         }
 
-        public List<Note> Generate(List<Beat> mergedBeats, AudioMetadata metadata)
+        public List<Note> Generate(AudioMetadata metadata)
         {
             var notes = new List<Note>();
             foreach (var beat in metadata.BeatDetectorResult.DetectedBeats)
