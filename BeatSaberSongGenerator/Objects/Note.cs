@@ -8,13 +8,14 @@ namespace BeatSaberSongGenerator.Objects
         public Note() {}
 
         public Note(
-            float time, 
+            int beatIndex,
             Hand hand, 
             CutDirection cutDirection, 
             HorizontalPosition horizontalPosition,
             VerticalPosition verticalPosition)
         {
-            Time = time;
+            BeatIndex = beatIndex;
+            Time = 0;
             Hand = hand;
             CutDirection = cutDirection;
             HorizontalPosition = horizontalPosition;
@@ -35,5 +36,8 @@ namespace BeatSaberSongGenerator.Objects
 
         [JsonProperty("_cutDirection")]
         public CutDirection CutDirection { get; set; }
+
+
+        public int BeatIndex { get; set; }
     }
 }

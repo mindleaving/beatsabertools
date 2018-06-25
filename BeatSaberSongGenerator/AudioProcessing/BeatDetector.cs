@@ -49,19 +49,121 @@ namespace BeatSaberSongGenerator.AudioProcessing
         /// <param name="signal">Expected to be normalized to -1 to 1</param>
         /// <param name="sampleRate">Sample rate of signal</param>
         /// <returns>Sample indices of beats</returns>
-        public BeatDetectorResult DetectBeats(IList<float> signal, int sampleRate)
+        public BeatDetectorResult DetectBeats(IList<float> signal, int sampleRate, double songLengthInSeconds)
         {
             var stftWindowSize = 4096;
             var stepSize = 1024;
             var lowerLimit = 0.1 * sampleRate;
             var upperLimit = 1.0 * sampleRate;
-
+            
             var stft = new Stft(windowSize: stftWindowSize, hopSize: stepSize, window: WindowTypes.Hamming);
             var spectrogram = stft.Spectrogram(signal.ToArray());
             var windowPositions = SequenceGeneration
                 .Linspace(stftWindowSize / 2.0, signal.Count-stftWindowSize/2.0, spectrogram.Count)
                 .ToList();
 
+            List<int> mostImportantFrequency = new List<int>();
+            float secondsToConsiderMostImportant = 0.5f;
+            float beatIndexesToConsiderMostImportant = secondsToConsiderMostImportant * sampleRate;
+            for (int timeIndex = 0; timeIndex < spectrogram.Count(); ++timeIndex)
+            {
+                int startTimeIndex = windowPositions.FindIndex(x => windowPositions[timeIndex] - x < beatIndexesToConsiderMostImportant);
+                int endTimeIndex = windowPositions.FindLastIndex(x => x - windowPositions[timeIndex] < beatIndexesToConsiderMostImportant);
+                double currentFrequencyMax = 0;
+                int currentMaxFrequencyIndex = 0;
+                for (int frequency = 0; frequency < spectrogram[0].Count(); ++frequency)
+                {
+                    double currentFrequencyStrength = 0;
+                    float currentValue = spectrogram[startTimeIndex][frequency];
+                    for (int i = startTimeIndex; i <= endTimeIndex; ++i)
+                    {
+                        float newValue = spectrogram[i][frequency];
+                        currentFrequencyStrength += Math.Abs(newValue - currentValue);
+                        currentValue = newValue;
+                    }
+                    if (currentFrequencyStrength > currentFrequencyMax)
+                    {
+                        currentMaxFrequencyIndex = frequency;
+                        currentFrequencyMax = currentFrequencyStrength;
+                    }
+                }
+                mostImportantFrequency.Add(currentMaxFrequencyIndex);
+            }
+
+            List<Beat> beatCandidates = new List<Beat>();
+            float minimumIntensity = 0.75f;
+            float requiredDelta = 0.75f;
+            for(int frequency = 0; frequency < spectrogram[0].Count(); ++frequency)
+            {
+                for(int timeIndex = 1; timeIndex < spectrogram.Count() - 1; ++timeIndex)
+                {
+                    if (mostImportantFrequency[timeIndex] != frequency) continue;
+
+                    float intensityNow = spectrogram[timeIndex][frequency];
+                    if (intensityNow > minimumIntensity)
+                    {
+                        float intensityBefore = spectrogram[timeIndex - 1][frequency];
+                        float intensityAfter = spectrogram[timeIndex - 1][frequency];
+                        if((intensityNow > intensityBefore + requiredDelta)
+                            &&(intensityNow > intensityAfter + requiredDelta))
+                        {
+                            Beat candidate = new Beat();
+                            candidate.SampleIndex = (int)windowPositions[timeIndex];
+                            candidate.Strength = intensityNow - intensityBefore; //ignoring intensityAfter here, not sure if should be added
+                            beatCandidates.Add(candidate);
+                        }
+                    }
+                }
+            }
+            beatCandidates.Sort((a, b) => (a.SampleIndex.CompareTo(b.SampleIndex)));
+
+            List<Beat> duplicateFilteredBeats = new List<Beat>();
+            duplicateFilteredBeats.Add(beatCandidates[0]);
+            int beatIndex = 0;
+            for (int i = 1; i < beatCandidates.Count(); ++i)
+            {
+                if(beatCandidates[i].SampleIndex != beatCandidates[i-1].SampleIndex)
+                {
+                    duplicateFilteredBeats.Add(beatCandidates[i]);
+                    ++beatIndex;
+                }
+                else
+                {
+                    duplicateFilteredBeats[beatIndex].Strength += beatCandidates[i].Strength;
+                }
+            }
+
+            float secondsToMerge = 0.15f;
+            float beatIndexesToMerge = secondsToMerge * sampleRate;
+            List<Beat> strengthFilteredBeats = new List<Beat>();
+            while (duplicateFilteredBeats.Count() > 0)
+            {
+                Beat strongestBeat = duplicateFilteredBeats.MaximumItem(x => x.Strength);
+                duplicateFilteredBeats.Remove(strongestBeat);
+                List<Beat> beatsToDelete = new List<Beat>();
+                for (int i = 0; i < duplicateFilteredBeats.Count(); ++i)
+                {
+                    if( Math.Abs(duplicateFilteredBeats[i].SampleIndex - strongestBeat.SampleIndex) < beatIndexesToMerge)
+                    {
+                        strongestBeat.Strength += duplicateFilteredBeats[i].Strength;
+                        beatsToDelete.Add(duplicateFilteredBeats[i]);
+                    }
+                }
+                strengthFilteredBeats.Add(strongestBeat);
+                for (int i = 0; i < beatsToDelete.Count(); ++i)
+                    duplicateFilteredBeats.Remove(beatsToDelete[i]);
+            }
+
+            //not really needed, just for clarity
+            strengthFilteredBeats.Sort((a, b) => (a.SampleIndex.CompareTo(b.SampleIndex)));
+
+            List<Beat> filteredBeats = strengthFilteredBeats;
+            List<Beat> regularBeats = new List<Beat>();
+            List<SongIntensity> songIntensity = new List<SongIntensity>();
+            double bpm = 60*strengthFilteredBeats.Count() / songLengthInSeconds;
+            return new BeatDetectorResult(bpm, 4, filteredBeats, regularBeats, songIntensity);
+
+            /*
             var fftMagnitudeIncreaseSeries = ComputeFftMagnitudeIncreaseSeries(spectrogram, windowPositions);
             var candidateBeats = FindCandidateBeats(fftMagnitudeIncreaseSeries, sampleRate, stepSize, out var songIntensity);
             var filteredBeats = FilterBeats(candidateBeats, lowerLimit);
@@ -71,6 +173,7 @@ namespace BeatSaberSongGenerator.AudioProcessing
 
             var beatsPerBar = 4;
             return new BeatDetectorResult(beatsPerMinute, beatsPerBar, filteredBeats, regularBeats, songIntensity);
+            */
         }
 
         private List<Beat> GenerateRegularBeats(List<Beat> detectedBeats, double beatsPerMinute, int sampleRate, int totalSampleCount)

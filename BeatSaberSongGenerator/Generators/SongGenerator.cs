@@ -4,17 +4,18 @@ using BeatSaberSongGenerator.AudioProcessing;
 using BeatSaberSongGenerator.IO;
 using BeatSaberSongGenerator.Objects;
 using Commons;
+using System.Collections.Generic;
 
 namespace BeatSaberSongGenerator.Generators
 {
     public class SongGenerator
     {
-        private readonly BeatDetector beatDetector;
+        private readonly BeatSaberSongGenerator.AudioProcessing.BeatDetector beatDetector;
         private readonly LevelInstructionGenerator levelInstructionGenerator;
-
+            
         public SongGenerator(SongGeneratorSettings settings)
         {
-            beatDetector = new BeatDetector();
+            beatDetector = new BeatSaberSongGenerator.AudioProcessing.BeatDetector();
             levelInstructionGenerator = new LevelInstructionGenerator(settings);
         }
 
@@ -24,7 +25,8 @@ namespace BeatSaberSongGenerator.Generators
             audioMetadata.SongName = songName;
             audioMetadata.Author = author;
             var environmentType = SelectEnvironmentType();
-            var difficulties = new []{ Difficulty.Easy, Difficulty.Normal, Difficulty.Hard, Difficulty.Expert};
+            //var difficulties = new[] { Difficulty.Easy, Difficulty.Normal, Difficulty.Hard, Difficulty.Expert };
+            var difficulties = new[] { Difficulty.Expert };
             var songInfo = new SongInfo
             {
                 SongName = songName,
@@ -64,8 +66,9 @@ namespace BeatSaberSongGenerator.Generators
 
         private AudioMetadata GetAudioMetadata(string audioFilePath)
         {
-            var audioData = AudioSampleReader.ReadMonoSamples(audioFilePath, out var sampleRate);
-            var beatDetectorResult = beatDetector.DetectBeats(audioData, sampleRate);
+            var audioData = AudioSampleReader.ReadMonoSamples(audioFilePath, out var sampleRate, out double songLenghInSeconds);
+            var beatDetectorResult = beatDetector.DetectBeats(audioData, sampleRate, songLenghInSeconds);
+            
             return new AudioMetadata
             {
                 SampleRate = sampleRate,
