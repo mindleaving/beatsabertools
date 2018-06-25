@@ -65,7 +65,6 @@ namespace BeatSaberSongGenerator.AudioProcessing
             var fftMagnitudeIncreaseSeries = ComputeFftMagnitudeIncreaseSeries(spectrogram, windowPositions);
             var candidateBeats = FindCandidateBeats(fftMagnitudeIncreaseSeries, sampleRate, stepSize, out var songIntensity);
             var filteredBeats = FilterBeats(candidateBeats, lowerLimit);
-            // TODO: Filter candidate beats to get a more regular beat
             var beatsPerMinute = DetermineBeatsPerMinute(filteredBeats, sampleRate, upperLimit);
             var regularBeats = GenerateRegularBeats(filteredBeats, beatsPerMinute, sampleRate, signal.Count);
 
@@ -152,29 +151,32 @@ namespace BeatSaberSongGenerator.AudioProcessing
 
         private List<Beat> FindCandidateBeats(IList<Point2D> fftMagnitudeIncreaseSeries, int sampleRate, int stepSize, out List<SongIntensity> songIntensities)
         {
-            var thresholdWindowSize = (int) Math.Floor(1.5 * sampleRate / stepSize); // Corresponds to 1.5 seconds
+            var thresholdWindowSize = (int) Math.Floor(1.5 * sampleRate / stepSize); // Corresponds to 1.5 seconds. Note that this is the number of samples in the window.
             var dynamicThreshold = ComputeDynamicThreshold(
                 fftMagnitudeIncreaseSeries.Select(p => p.Y).ToList(),
                 thresholdWindowSize, 2, 4);
             var maxValue = fftMagnitudeIncreaseSeries.Max(p => p.Y);
-            var movingAverageWindowSize = 1.0 * sampleRate;
-            var averagedSignal = fftMagnitudeIncreaseSeries
-                .MedianFilter(movingAverageWindowSize)
+            var medianFilterWindowSize = 1.0 * sampleRate; // Window size of 1.0 second.
+                                                           // Note that the window size refers to the X-range of the points being filtered, NOT number of samples!
+                                                           // X = sample index.
+            var medianFiltered = fftMagnitudeIncreaseSeries
+                .MedianFilter(medianFilterWindowSize)
                 .ToList();
-            var averagedSignalMax = averagedSignal.Max(p => p.Y);
-            songIntensities = averagedSignal.Select(p => new SongIntensity((int) p.X, p.Y / averagedSignalMax)).ToList();
+            var signalMax = medianFiltered.Max(p => p.Y);
+            songIntensities = medianFiltered.Select(p => new SongIntensity((int) p.X, p.Y / signalMax)).ToList();
             var candidateBeats = new List<Beat>();
             for (var pointIdx = 0; pointIdx < fftMagnitudeIncreaseSeries.Count; pointIdx++)
             {
                 var timePoint = fftMagnitudeIncreaseSeries[pointIdx];
-                var averageValue = averagedSignal[pointIdx].Y;
+                var averageValue = medianFiltered[pointIdx].Y;
                 var threshold = dynamicThreshold[pointIdx];
                 if (timePoint.Y < threshold)
                     continue;
+                var strength = (timePoint.Y - averageValue) / maxValue;
                 var beat = new Beat
                 {
                     SampleIndex = (int) timePoint.X,
-                    Strength = (timePoint.Y - averageValue) / maxValue
+                    Strength = strength
                 };
                 candidateBeats.Add(beat);
             }
