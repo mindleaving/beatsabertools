@@ -1,151 +1,17 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{058D602A-0FDE-48DD-BA3C-9516A8ECC8A3}</ProjectGuid>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>BeatSaberSongGenerator</RootNamespace>
-    <AssemblyName>BeatSaberSongGenerator</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <WarningLevel>4</WarningLevel>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NAudio, Version=1.8.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NAudio.1.8.4\lib\net35\NAudio.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="OggVorbisEncoder, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OggVorbisEncoder.1.1.0\lib\netstandard1.1\OggVorbisEncoder.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Xaml">
-      <RequiredTargetFramework>4.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="WindowsBase" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
+    <PackageReference Include="mindleaving.Commons" Version="3.0.1" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="NWaves" Version="0.9.6" />
+    <PackageReference Include="OggVorbisEncoder" Version="1.2.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
   </ItemGroup>
-  <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Page Include="Views\MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AudioProcessing\AudioDownsampler.cs" />
-    <Compile Include="AudioProcessing\AudioSampleReader.cs" />
-    <Compile Include="AudioProcessing\AudioToOggConverter.cs" />
-    <Compile Include="AudioProcessing\BeatDetector.cs" />
-    <Compile Include="AudioProcessing\BeatMerger.cs" />
-    <Compile Include="Generators\BaseRhythmGenerator.cs" />
-    <Compile Include="Generators\LightEffectGenerator.cs" />
-    <Compile Include="Generators\NoteCombinationLibrary.cs" />
-    <Compile Include="Generators\ObstacleGenerator.cs" />
-    <Compile Include="Generators\TimeConversion.cs" />
-    <Compile Include="IO\SongStorer.cs" />
-    <Compile Include="Generators\LevelInstructionGenerator.cs" />
-    <Compile Include="Objects\AudioMetadata.cs" />
-    <Compile Include="Objects\BeatConfiguration.cs" />
-    <Compile Include="Objects\CutDirection.cs" />
-    <Compile Include="Objects\Difficulty.cs" />
-    <Compile Include="Objects\DifficultyLevel.cs" />
-    <Compile Include="Objects\Event.cs" />
-    <Compile Include="Objects\EventType.cs" />
-    <Compile Include="Objects\Hand.cs" />
-    <Compile Include="Objects\HorizontalPosition.cs" />
-    <Compile Include="Objects\Song.cs" />
-    <Compile Include="Objects\LevelInstructions.cs" />
-    <Compile Include="Objects\LightColor.cs" />
-    <Compile Include="Objects\Note.cs" />
-    <Compile Include="Objects\ObstableType.cs" />
-    <Compile Include="Objects\Obstacle.cs" />
-    <Compile Include="Objects\SongInfo.cs" />
-    <Compile Include="Objects\SongIntensity.cs" />
-    <Compile Include="Objects\VerticalPosition.cs" />
-    <Compile Include="Generators\SongGenerator.cs" />
-    <Compile Include="Generators\SongGeneratorSettings.cs" />
-    <Compile Include="Properties\Annotations.cs" />
-    <Compile Include="ViewModels\MainViewModel.cs" />
-    <Compile Include="ViewModels\NotifyPropertyChangedBase.cs" />
-    <Compile Include="ViewModels\RelayCommand.cs" />
-    <Compile Include="Views\MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\commons\Commons.csproj">
-      <Project>{D0E6B038-C939-487D-BB5E-A6270A0D18F5}</Project>
-      <Name>Commons</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NWaves\NWaves\NWaves.csproj">
-      <Project>{3fbf1b3a-3bed-4f2f-8008-871acf83e352}</Project>
-      <Name>NWaves</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

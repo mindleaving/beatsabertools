@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 using System.Threading;
@@ -190,7 +191,7 @@ namespace BeatSaberSongGenerator.ViewModels
             var songStorer = new SongStorer();
             var outputDirectory = Path.Combine(
                 Path.GetDirectoryName(AudioFilePath),
-                Path.GetFileNameWithoutExtension(AudioFilePath));
+                Regex.Replace(Path.GetFileNameWithoutExtension(AudioFilePath), "[^a-zA-Z0-9-_]", ""));
             songStorer.Store(song, outputDirectory);
 
             Application.Current.Dispatcher.BeginInvoke((Action) (() =>

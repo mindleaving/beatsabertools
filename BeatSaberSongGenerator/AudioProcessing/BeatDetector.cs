@@ -57,7 +57,7 @@ namespace BeatSaberSongGenerator.AudioProcessing
             var upperLimit = 1.0 * sampleRate;
             var songLengthInSeconds = signal.Count / (double)sampleRate;
             
-            var stft = new Stft(windowSize: stftWindowSize, hopSize: stepSize, window: WindowTypes.Hamming);
+            var stft = new Stft(windowSize: stftWindowSize, hopSize: stepSize, window: WindowType.Hamming);
             var spectrogram = stft.Spectrogram(signal.ToArray());
             var windowPositions = SequenceGeneration
                 .Linspace(stftWindowSize / 2.0, signal.Count-stftWindowSize/2.0, spectrogram.Count)

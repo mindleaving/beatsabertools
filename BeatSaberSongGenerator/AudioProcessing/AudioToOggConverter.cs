@@ -21,11 +21,10 @@ namespace BeatSaberSongGenerator.AudioProcessing
                 var oggStream = new OggStream(StaticRandom.Rng.Next());
 
                 // Build header
-                var headerBuilder = new HeaderPacketBuilder();
                 var audioInfo = VorbisInfo.InitVariableBitRate(channels.Count, waveFormat.SampleRate, 0.1f);
-                var infoPacket = headerBuilder.BuildInfoPacket(audioInfo);
-                var commentsPacket = headerBuilder.BuildCommentsPacket(new Comments());
-                var booksPacket = headerBuilder.BuildBooksPacket(audioInfo);
+                var infoPacket = HeaderPacketBuilder.BuildInfoPacket(audioInfo);
+                var commentsPacket = HeaderPacketBuilder.BuildCommentsPacket(new Comments());
+                var booksPacket = HeaderPacketBuilder.BuildBooksPacket(audioInfo);
                 oggStream.PacketIn(infoPacket);
                 oggStream.PacketIn(commentsPacket);
                 oggStream.PacketIn(booksPacket);
