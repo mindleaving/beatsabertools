@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
+using System.Threading;
+using System.Threading.Tasks;
 using BeatSaberSongGenerator.Generators;
 using BeatSaberSongGenerator.IO;
 using Microsoft.Win32;
@@ -171,9 +174,15 @@ namespace BeatSaberSongGenerator.ViewModels
         {
             GenerateButtonText = "Generating...";
             ProgressBarVisibility = Visibility.Visible;
+
+            Task.Run(() => DoGenerate());
+
             MessageBox.Show("This may take a few minutes and the application might hang during that time. " + Environment.NewLine
                             + "Unless you get dialogs other than this one you just have to be patient.");
+        }
 
+        private void DoGenerate()
+        {
             var songGenerator = new SongGenerator(new SongGeneratorSettings
             {
                 SkillLevel = SkillLevel,
@@ -182,12 +191,15 @@ namespace BeatSaberSongGenerator.ViewModels
             var songStorer = new SongStorer();
             var outputDirectory = Path.Combine(
                 Path.GetDirectoryName(AudioFilePath),
-                Path.GetFileNameWithoutExtension(AudioFilePath));
+                Regex.Replace(Path.GetFileNameWithoutExtension(AudioFilePath), "[^a-zA-Z0-9-_]", ""));
             songStorer.Store(song, outputDirectory);
 
-            MessageBox.Show("Song successfully generated");
-            GenerateButtonText = DefaultGenerateButtonText;
-            ProgressBarVisibility = Visibility.Collapsed;
+            Application.Current.Dispatcher.BeginInvoke((Action) (() =>
+            {
+                MessageBox.Show("Song successfully generated");
+                GenerateButtonText = DefaultGenerateButtonText;
+                ProgressBarVisibility = Visibility.Collapsed;
+            }));
         }
     }
 }

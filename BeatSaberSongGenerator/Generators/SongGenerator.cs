@@ -11,7 +11,7 @@ namespace BeatSaberSongGenerator.Generators
     {
         private readonly BeatDetector beatDetector;
         private readonly LevelInstructionGenerator levelInstructionGenerator;
-
+            
         public SongGenerator(SongGeneratorSettings settings)
         {
             beatDetector = new BeatDetector();
@@ -24,7 +24,7 @@ namespace BeatSaberSongGenerator.Generators
             audioMetadata.SongName = songName;
             audioMetadata.Author = author;
             var environmentType = SelectEnvironmentType();
-            var difficulties = new []{ Difficulty.Easy, Difficulty.Normal, Difficulty.Hard, Difficulty.Expert};
+            var difficulties = new[] { Difficulty.Easy, Difficulty.Normal, Difficulty.Hard, Difficulty.Expert };
             var songInfo = new SongInfo
             {
                 SongName = songName,
@@ -65,11 +65,13 @@ namespace BeatSaberSongGenerator.Generators
         private AudioMetadata GetAudioMetadata(string audioFilePath)
         {
             var audioData = AudioSampleReader.ReadMonoSamples(audioFilePath, out var sampleRate);
+            var songLength = TimeSpan.FromSeconds(audioData.Count / (double)sampleRate);
             var beatDetectorResult = beatDetector.DetectBeats(audioData, sampleRate);
+
             return new AudioMetadata
             {
                 SampleRate = sampleRate,
-                Length = TimeSpan.FromSeconds(audioData.Count / (double)sampleRate),
+                Length = songLength,
                 BeatDetectorResult = beatDetectorResult
             };
         }

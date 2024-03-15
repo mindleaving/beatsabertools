@@ -1,7 +1,3 @@
-[submodule "commons"]
-	path = commons
-	url = https://github.com/mindleaving/commons.git
-	branch = master
 [submodule "NWaves"]
 	path = NWaves
 	url = https://github.com/ar1st0crat/NWaves.git

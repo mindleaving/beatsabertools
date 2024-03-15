@@ -8,8 +8,67 @@ namespace BeatSaberSongGenerator.Generators
 {
     public class BaseRhythmGenerator
     {
-        public List<Note> Generate(int beatsPerBar, int barCount, float timeOffset)
+        private static HorizontalPosition GetRandHorPosition()
         {
+            var val = StaticRandom.Rng.Next(0,4);
+            switch (val)
+            {
+                case 0:
+                    return HorizontalPosition.CenterLeft;
+                case 1:
+                    return HorizontalPosition.CenterRight;
+                case 2:
+                    return HorizontalPosition.Left;
+                case 3:
+                    return HorizontalPosition.Right;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(val));
+            }
+        }
+
+        private static VerticalPosition GetRandVertPosition()
+        {
+            var val = StaticRandom.Rng.Next(0,3);
+            switch (val)
+            {
+                case 0:
+                    return VerticalPosition.Bottom;
+                case 1:
+                    return VerticalPosition.Middle;
+                case 2:
+                    return VerticalPosition.Top;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(val));
+            }
+        }
+
+        private static Hand GetRandomHand()
+        {
+            var val = StaticRandom.Rng.Next(0, 2);
+            switch (val)
+            {
+                case 0:
+                    return Hand.Left;
+                case 1:
+                    return Hand.Right;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(val));
+            }
+        }
+
+        public List<Note> Generate(AudioMetadata metadata)
+        {
+            var notes = new List<Note>();
+            foreach (var beat in metadata.BeatDetectorResult.DetectedBeats)
+            {
+                var time = TimeConversion.SampleIndexToBeatIndex(
+                    beat.SampleIndex,
+                    metadata.SampleRate,
+                    metadata.BeatDetectorResult.BeatsPerMinute);
+                var note = new Note(time, GetRandomHand(), CutDirection.Any, GetRandHorPosition(), GetRandVertPosition());
+                notes.Add(note);
+            }
+            /*
             var barConfiguration = Enumerable.Range(0, beatsPerBar)
                 .Select(_ => GenerateRandomBeatConfiguration())
                 .ToList();
@@ -17,8 +76,9 @@ namespace BeatSaberSongGenerator.Generators
             var modificationProbability = 0.2;
             var modifications = new BeatConfiguration[beatsPerBar];
             var notes = new List<Note>();
-            for (var barIdx = 0; barIdx < barCount; barIdx++)
+            for (var barIdx = 0; barIdx < detectedBeats.Count(); barIdx += beatsPerBar)
             {
+                if (detectedBeats[barIdx].Strength == 0) continue;
                 if (StaticRandom.Rng.NextDouble() < modificationProbability)
                 {
                     var modificationBeatIdx = StaticRandom.Rng.Next(beatsPerBar);
@@ -33,12 +93,15 @@ namespace BeatSaberSongGenerator.Generators
                 }
                 for (var beatIdx = 0; beatIdx < beatsPerBar; beatIdx++)
                 {
-                    var time = timeOffset + barIdx * beatsPerBar + beatIdx;
                     var beatConfiguration = modifications[beatIdx] ?? barConfiguration[beatIdx];
-                    var combination = GetCombination(time,beatConfiguration);
+                    var combination = GetCombination(barIdx + beatIdx, beatConfiguration);
+                    foreach (var note in combination)
+                        if(note.BeatIndex < detectedBeats.Count())
+                            note.Time = (float)( bpm * (double)detectedBeats[note.BeatIndex].SampleIndex / (double)sampleCount / 60.0);
                     notes.AddRange(combination);
                 }
             }
+            */
             return notes;
         }
 

@@ -74,17 +74,19 @@ namespace BeatSaberSongGenerator.Generators
 
         private IList<Note> GenerateModifiedBaseRhythm(Difficulty difficulty, AudioMetadata audioMetadata)
         {
+            /*
             var beats = BeatMerger.Merge(
-                audioMetadata.BeatDetectorResult.DetectedBeats, 
-                audioMetadata.BeatDetectorResult.RegularBeats, 
+                audioMetadata.BeatDetectorResult.DetectedBeats,
+                audioMetadata.BeatDetectorResult.RegularBeats,
                 audioMetadata.SampleRate);
-            var startBeatIdx = beats.FindIndex(beat => beat.Strength > 0);
-            var endBeatIdx = beats.FindLastIndex(beat => beat.Strength > 0);
-            var totalValidBeatCount = endBeatIdx - startBeatIdx + 1;
-            var barCount = totalValidBeatCount / audioMetadata.BeatDetectorResult.BeatsPerBar;
-            var notes = baseRhythmGenerator.Generate(audioMetadata.BeatDetectorResult.BeatsPerBar, barCount, startBeatIdx);
-            var difficultyFilteredNotes = FilterNotesByDifficulty(notes, audioMetadata, difficulty);
-            return difficultyFilteredNotes;
+                */
+            //var startBeatIdx = beats.FindIndex(beat => beat.Strength > 0);
+            //var endBeatIdx = beats.FindLastIndex(beat => beat.Strength > 0);
+            //var totalValidBeatCount = endBeatIdx - startBeatIdx + 1;
+            //var barCount = totalValidBeatCount / audioMetadata.BeatDetectorResult.BeatsPerBar;
+            var notes = baseRhythmGenerator.Generate(audioMetadata);
+            //var difficultyFilteredNotes = FilterNotesByDifficulty(notes, audioMetadata, difficulty);
+            return notes;
         }
 
         private List<Note> FilterNotesByDifficulty(IEnumerable<Note> baseNotes, AudioMetadata audioMetadata, Difficulty difficulty)
